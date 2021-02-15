@@ -1,0 +1,22 @@
+{
+  "name": "fastify-rest-status",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap --no-coverage-report --jobs=1 -t 60 test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jelenkee/fastify-rest-status.git"
+  },
+  "author": "Jelenkee",
+  "license": "MIT",
+  "dependencies": {
+    "fastify-plugin": "^3.0.0"
+  },
+  "devDependencies": {
+    "fastify": "^3.11.0",
+    "tap": "^14.11.0"
+  }
+}
