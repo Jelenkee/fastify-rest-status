@@ -37,16 +37,3 @@ module.exports = fp(plugin, {
     fastify: ">=3.x.x",
     name: NAME,
 });
-
-console.log(__filename);
-/*const f=require("fastify")({logger:true});
-f.register(module.exports,{prefix:"/status",logger:true,config:true,dashboard:true});
-f.get("/a//b",(req,rep)=>rep.send("party"));
-const {getFormBody}=require("./lib/utils");
-require("querystring").parse
-f.post("/json",(req,rep)=>rep.send(getFormBody(req)));
-f.listen(3434,(e,a)=>{
-    e&&console.log(e);
-    console.log(a);
-    //f.getConfigValue("d");
-});*/

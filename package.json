@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "tap --no-coverage-report --jobs=1 -t 60 test.js"
+    "test": "tap --no-coverage-report --jobs=1 -t 60 test.js",
+    "demo": "node demo/"
   },
   "repository": {
     "type": "git",
