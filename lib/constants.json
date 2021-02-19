@@ -1,4 +1,5 @@
 {
     "LOG_LEVEL_PATH": "/log-level",
-    "CONFIG_PATH": "/config"
+    "CONFIG_PATH": "/config",
+    "ACTION_PATH": "/action"
 }

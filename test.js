@@ -2,11 +2,12 @@ const { test } = require("tap");
 const plugin = require("./index");
 const pino = require("pino");
 const Fastify = require("fastify");
-let { LOG_LEVEL_PATH, CONFIG_PATH } = require("./lib/constants.json");
+let { LOG_LEVEL_PATH, CONFIG_PATH, ACTION_PATH } = require("./lib/constants.json");
 
 const prefix = "/status";
 CONFIG_PATH = prefix + CONFIG_PATH;
 LOG_LEVEL_PATH = prefix + LOG_LEVEL_PATH;
+ACTION_PATH = prefix + ACTION_PATH;
 
 test("logger", t => {
     t.plan(3);
@@ -198,6 +199,63 @@ test("config", t => {
         res = await fastify.inject().put(CONFIG_PATH + "/foo").payload({ value: "88" }).end();
         res = await fastify.inject().get(CONFIG_PATH).end();
         t.deepEqual(JSON.parse(res.body), { bar: "baz", foo: "88", eee: "iii" });
+    });
+});
+
+test("actions", t => {
+    t.plan(3);
+    t.test("list", async t => {
+        t.plan(1);
+        const fastify = Fastify();
+        fastify.register(plugin, {
+            prefix,
+            actions: [
+                { id: "foo", name: "FOO", params: ["a", "b"], func: () => { } },
+                { id: "bar", func: () => { } },
+            ]
+        });
+        const res = await fastify.inject().get(ACTION_PATH).end();
+        t.deepEqual(JSON.parse(res.body), [
+            { id: "foo", name: "FOO", params: ["a", "b"] },
+            { id: "bar", name: "bar", params: [] },
+        ]);
+    });
+
+    t.test("error", async t => {
+        t.plan(2);
+        const fastify = Fastify();
+        fastify.register(plugin, {
+            prefix,
+            actions: [
+                { id: "foo", func: () => { throw new Error("ee") } },
+            ]
+        });
+        let res = null;
+        res = await fastify.inject().post(ACTION_PATH + "/bar").end();
+        t.equal(res.statusCode, 400);
+        res = await fastify.inject().post(ACTION_PATH + "/foo").end();
+        t.equal(res.statusCode, 500);
+    });
+
+    t.test("success", async t => {
+        t.plan(4);
+        const fastify = Fastify();
+        fastify.register(plugin, {
+            prefix,
+            actions: [
+                { id: "nothing", func: () => { } },
+                { id: "something", func: params => params },
+            ]
+        });
+        let res = null;
+        res = await fastify.inject().post(ACTION_PATH + "/nothing").end();
+        t.deepEqual(JSON.parse(res.body), {});
+        res = await fastify.inject().post(ACTION_PATH + "/something").end();
+        t.deepEqual(JSON.parse(res.body), {});
+        res = await fastify.inject().post(ACTION_PATH + "/something?a=a&b=99").end();
+        t.deepEqual(JSON.parse(res.body), { a: "a", b: "99" });
+        res = await fastify.inject().post(ACTION_PATH + "/something").payload("a=a&b=99").headers({ "content-type": "application/x-www-form-urlencoded" }).end();
+        t.deepEqual(JSON.parse(res.body), { a: "a", b: "99" });
     });
 });
 

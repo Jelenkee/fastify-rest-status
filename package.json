@@ -13,6 +13,7 @@
   "author": "Jelenkee",
   "license": "MIT",
   "dependencies": {
+    "fastify-formbody": "^5.0.0",
     "fastify-plugin": "^3.0.0"
   },
   "devDependencies": {

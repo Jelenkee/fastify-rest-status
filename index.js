@@ -16,6 +16,8 @@ function plugin(instance, opts, done) {
     const promises = [];
     promises.push(require("./lib/loglevel")(log, instance, opts));
     promises.push(require("./lib/config")(log, instance, opts));
+    promises.push(require("./lib/action")(log, instance, opts));
+    instance.get(opts.prefix + "/ping", async () => "pong");
     //TOODO actions (trigger from gui with params), async/sync
     //TODO get systemdata require("os")
     //TODO custom healthcheck
@@ -26,6 +28,7 @@ function plugin(instance, opts, done) {
     instance.addContentTypeParser('*', { parseAs: "string" }, function (request, payload, done) {
         done(null, payload)
     });
+    instance.register(require("fastify-formbody"));
 
     Promise.all(promises).then(() => done()).catch(e => done(e));
 }
@@ -37,8 +40,11 @@ module.exports = fp(plugin, {
 
 console.log(__filename);
 /*const f=require("fastify")({logger:true});
-//f.register(module.exports,{logger:true,config:true});
+f.register(module.exports,{prefix:"/status",logger:true,config:true,dashboard:true});
 f.get("/a//b",(req,rep)=>rep.send("party"));
+const {getFormBody}=require("./lib/utils");
+require("querystring").parse
+f.post("/json",(req,rep)=>rep.send(getFormBody(req)));
 f.listen(3434,(e,a)=>{
     e&&console.log(e);
     console.log(a);
