@@ -1,7 +1,7 @@
 const Fastify = require("fastify");
 const plugin = require("../index");
 
-const fastify = Fastify();
+const fastify = Fastify({ logger: !true });
 let num = 0;
 let configChanges = 0;
 fastify.register(plugin, {
@@ -64,10 +64,10 @@ fastify.register(plugin, {
             }
         }
     ],
-    dashboard: true
+    panel: true
 });
 fastify.get("*", (req, rep) => {
-    rep.type("text/html").send(`<a href="/status/dashboard">Link to dashboard</a>`);
+    rep.type("text/html").send(`<a href="/status/panel">Link to panel</a>`);
 });
 
 fastify.listen(3434, (e, a) => {

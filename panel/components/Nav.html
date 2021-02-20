@@ -1,0 +1,25 @@
+<script>
+    export let sections;
+    export let activeSection;
+</script>
+
+<style>
+
+</style>
+
+<div class="column is-narrow">
+    <h1 class="title is-3 has-background-primary has-text-white-bis">Title</h1>
+    <div class="menu">
+        <p class="menu-label">Menu</p>
+        <ul class="menu-list">
+            <li>
+                <ul>
+                    {#each sections as s (s)}
+                    <li><a href="{'javascript:void(0)'}" class:is-active="{activeSection===s}"
+                            on:click="{()=>activeSection=s}">{s}</a></li>
+                    {/each}
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
