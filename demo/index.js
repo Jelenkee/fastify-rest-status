@@ -4,6 +4,8 @@ const plugin = require("../index");
 const fastify = Fastify({ logger: true });
 let num = 0;
 let configChanges = 0;
+const scriptStore = {};
+//fastify.addHook("onRoute",console.log);
 fastify.register(plugin, {
     prefix: "/status",
     logger: true,
@@ -64,7 +66,25 @@ fastify.register(plugin, {
             }
         }
     ],
-    panel: true
+    panel: true,
+    script: {
+        that: fastify,
+        params:{
+            store:["minus","times"],
+            num:3
+        },
+        store: {
+            get(k) {
+                return scriptStore[k];
+            },
+            getAll() {
+                return Object.entries(scriptStore).map(e => ({ name: e[0], script: e[1] }));
+            },
+            set(k, v) {
+                scriptStore[k] = v;
+            }
+        }
+    }
 });
 fastify.get("*", (req, rep) => {
     rep.type("text/html").send(`<a href="/status/panel">Link to panel</a>`);

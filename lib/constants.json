@@ -2,5 +2,6 @@
     "LOG_LEVEL_PATH": "/log-level",
     "CONFIG_PATH": "/config",
     "ACTION_PATH": "/action",
-    "PANEL_PATH": "/panel"
+    "PANEL_PATH": "/panel",
+    "SCRIPT_PATH": "/script"
 }

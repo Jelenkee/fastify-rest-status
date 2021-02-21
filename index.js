@@ -17,6 +17,7 @@ function plugin(instance, opts, done) {
     promises.push(require("./lib/loglevel")(log, instance, opts));
     promises.push(require("./lib/config")(log, instance, opts));
     promises.push(require("./lib/action")(log, instance, opts));
+    promises.push(require("./lib/script")(log, instance, opts));
     promises.push(require("./lib/panel")(log, instance, opts));
     instance.get(opts.prefix + "/ping", async () => "pong");
     //TOODO actions (trigger from gui with params), async/sync
