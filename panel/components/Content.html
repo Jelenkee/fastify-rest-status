@@ -1,0 +1,114 @@
+<script>
+    import { onMount } from "svelte";
+    import { slide } from "svelte/transition";
+
+    export let activeSection;
+    let configEntries = [];
+    let loglevels = [];
+    let currentLoglevel;
+
+    onMount(() => {
+        fetchConfig();
+        fetch("log-level/levels")
+            .then(res => res.ok ? res.json() : [])
+            .then(res => loglevels = res)
+            .catch(console.error)
+
+        fetch("log-level")
+            .then(res => res.ok ? res.json() : [])
+            .then(res => currentLoglevel = res.level)
+            .catch(console.error)
+
+    });
+
+    async function fetchConfig() {
+        const res = await fetch("config");
+        if (res.ok) {
+            const config = await res.json();
+            configEntries = Object.entries(config).sort((a, b) => a[0].localeCompare(b[0])).map(e => { e[1] = valueToString(e[1]); return e; });
+        } else {
+            console.error(await res.json());
+        }
+    }
+
+    async function saveConfig(key, value) {
+        const res = await fetch("config/" + key, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ value }) });
+        if (res.ok) {
+            console.log(await res.json());
+        } else {
+            console.error(await res.json());
+        }
+    }
+
+    function valueToString(val) {
+        const type = typeof val;
+        if (Array.isArray(val)) {
+            return val.join(",");
+        } else if (typeof val === "object") {
+            return JSON.stringify(val);
+        } else {
+            return String(val);
+        }
+    }
+</script>
+
+<style>
+
+</style>
+
+<div class="column pt-6">
+    <h2 class="title is-4">{activeSection}</h2>
+    {#if activeSection === "Application"}
+    <p>App</p>
+    {:else if activeSection === "Action"}
+    <p>Marvel</p>
+    {:else if activeSection === "Configuration"}
+    <div><button class="button is-info is-light" on:click="{fetchConfig}">Refresh Config</button></div>
+    <div class="field is-horizontal">
+        <div class="field-label is-normal">
+            <label class="label">Log level</label>
+        </div>
+        <div class="field-body">
+            <div class="field">
+                <div class="control">
+                    <div class="select">
+                        <select>
+                            {#each loglevels as l}
+                            <option>{l}</option>
+                            {/each}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="field">
+                <div class="control">
+                    <button class="button" on:click="{()=>saveConfig(k,v)}">Save</button>
+                </div>
+            </div>-->
+        </div>
+    </div>
+    {#each configEntries as [k,v] (k)}
+    <div class="field is-horizontal">
+        <div class="field-label is-normal">
+            <label class="label">{k}</label>
+        </div>
+        <div class="field-body">
+            <div class="field">
+                <div class="control">
+                    <input type="text" class="input" bind:value="{v}">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <button class="button" on:click="{()=>saveConfig(k,v)}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {/each}
+    {:else if activeSection === "System"}
+    <p>Processor</p>
+    {:else}
+    <p>Unknown section</p>
+    {/if}
+</div>

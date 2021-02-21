@@ -10,7 +10,7 @@ LOG_LEVEL_PATH = prefix + LOG_LEVEL_PATH;
 ACTION_PATH = prefix + ACTION_PATH;
 
 test("logger", t => {
-    t.plan(3);
+    t.plan(4);
 
     t.test("true", async t => {
         t.plan(9);
@@ -62,6 +62,15 @@ test("logger", t => {
         const res = await fastify.inject().get(LOG_LEVEL_PATH).end();
         t.equal(res.statusCode, 404);
     });
+
+    t.test("levels", async t => {
+        t.plan(1);
+        const fastify = Fastify({ logger: true });
+        fastify.register(plugin, { prefix, logger: true });
+
+        const res = await fastify.inject().get(LOG_LEVEL_PATH + "/levels").end();
+        t.deepEqual(JSON.parse(res.body), ["trace", "debug", "info", "warn", "error", "fatal"]);
+    });
 });
 
 test("config", t => {
@@ -110,7 +119,7 @@ test("config", t => {
     t.test("nullish", t => {
         t.plan(3);
         const fastify = Fastify();
-        fastify.register(plugin, { prefix, config: true });
+        fastify.register(plugin, { prefix, config: {} });
 
         fastify.ready(() => {
             t.equal(fastify.getConfigValue("undef"), undefined);
@@ -167,7 +176,7 @@ test("config", t => {
     });
 
     t.test("routes", async t => {
-        t.plan(6);
+        t.plan(5);
         const fastify = Fastify();
         fastify.register(plugin, {
             prefix,
@@ -192,13 +201,9 @@ test("config", t => {
         res = await fastify.inject().get(CONFIG_PATH + "/bar").end();
         t.deepEqual(JSON.parse(res.body), { bar: "baz" });
 
-        res = await fastify.inject().put(CONFIG_PATH + "/eee?value=iii").end();
-        res = await fastify.inject().get(CONFIG_PATH + "/eee").end();
-        t.deepEqual(JSON.parse(res.body), { eee: "iii" });
-
         res = await fastify.inject().put(CONFIG_PATH + "/foo").payload({ value: "88" }).end();
         res = await fastify.inject().get(CONFIG_PATH).end();
-        t.deepEqual(JSON.parse(res.body), { bar: "baz", foo: "88", eee: "iii" });
+        t.deepEqual(JSON.parse(res.body), { bar: "baz", foo: "88" });
     });
 });
 

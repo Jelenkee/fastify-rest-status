@@ -2,6 +2,7 @@ import svelte from "rollup-plugin-svelte";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import css from "rollup-plugin-css-only";
+import { terser } from "rollup-plugin-terser";
 
 export default {
     input: "panel/main.js",
@@ -25,5 +26,9 @@ export default {
             dedupe: ["svelte"]
         }),
         commonjs(),
+        false && terser({
+            compress: true,
+            mangle: true
+        }),
     ]
 }

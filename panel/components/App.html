@@ -1,32 +1,23 @@
 <script>
     import Nav from "./Nav.html";
+    import Content from "./Content.html";
     import { onMount } from "svelte";
-    const sections = ["Application", "Actions", "Config", "System"];
+    import { slide } from "svelte/transition";
+    const sections = ["Application", "Action", "Configuration", "System"];
     let activeSection = sections[0];
-    let text = "";
 
 
     onMount(() => {
-        fetch("config")
-            .then(res => res.text())
-            .then(res => text = res)
-            .catch(console.error)
     });
 
 </script>
 
 <style>
-    .column {
-        font-style: italic;
-    }
 </style>
 
-<main class="container px-3">
+<main class="container px-3 pt-4">
     <div class="columns">
         <Nav bind:activeSection="{activeSection}" sections="{sections}" />
-        <div class="column">
-            Theater
-        </div>
+        <Content activeSection="{activeSection}" />
     </div>
-    {activeSection}
 </main>

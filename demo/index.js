@@ -1,7 +1,7 @@
 const Fastify = require("fastify");
 const plugin = require("../index");
 
-const fastify = Fastify({ logger: !true });
+const fastify = Fastify({ logger: true });
 let num = 0;
 let configChanges = 0;
 fastify.register(plugin, {
