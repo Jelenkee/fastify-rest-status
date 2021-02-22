@@ -11,10 +11,25 @@ fastify.register(plugin, {
     logger: true,
     config: {
         defaultConfig: {
-            number: 0,
-            string: "string",
-            array: [],
-            json: {}
+            number: {
+                value: 0,
+                description: "A number",
+                values: []
+            },
+            string: {
+                value: "qwerty",
+                description: "A sequence of characters",
+                values: ["qwerty", "asdf", "zxcvb"]
+            },
+            array: {
+                value: ["malee"],
+                values: [["1", "2", "3"], ["a", "b", "c"]]
+            },
+            json: {
+                value: {},
+                description: "An object",
+
+            }
         },
         configTransformer: (k, v) => {
             if (k === "number") {
@@ -69,9 +84,9 @@ fastify.register(plugin, {
     panel: true,
     script: {
         that: fastify,
-        params:{
-            store:["minus","times"],
-            num:3
+        params: {
+            store: ["minus", "times"],
+            num: 3
         },
         store: {
             get(k) {

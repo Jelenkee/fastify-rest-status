@@ -69,6 +69,19 @@ var app = (function () {
     function set_input_value(input, value) {
         input.value = value == null ? '' : value;
     }
+    function select_option(select, value) {
+        for (let i = 0; i < select.options.length; i += 1) {
+            const option = select.options[i];
+            if (option.__value === value) {
+                option.selected = true;
+                return;
+            }
+        }
+    }
+    function select_value(select) {
+        const selected_option = select.querySelector(':checked') || select.options[0];
+        return selected_option && selected_option.__value;
+    }
     function toggle_class(element, name, toggle) {
         element.classList[toggle ? 'add' : 'remove'](name);
     }
@@ -548,21 +561,21 @@ var app = (function () {
 
     function get_each_context$1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[7] = list[i][0];
-    	child_ctx[8] = list[i][1];
-    	child_ctx[9] = list;
-    	child_ctx[10] = i;
+    	child_ctx[10] = list[i][0];
+    	child_ctx[11] = list[i][1];
+    	child_ctx[12] = list;
+    	child_ctx[13] = i;
     	return child_ctx;
     }
 
     function get_each_context_1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[11] = list[i];
+    	child_ctx[14] = list[i];
     	return child_ctx;
     }
 
-    // (111:4) {:else}
-    function create_else_block(ctx) {
+    // (109:4) {:else}
+    function create_else_block_1(ctx) {
     	let p;
 
     	return {
@@ -580,8 +593,8 @@ var app = (function () {
     	};
     }
 
-    // (109:41) 
-    function create_if_block_3(ctx) {
+    // (107:41) 
+    function create_if_block_7(ctx) {
     	let p;
 
     	return {
@@ -599,154 +612,108 @@ var app = (function () {
     	};
     }
 
-    // (65:48) 
+    // (66:48) 
     function create_if_block_2(ctx) {
-    	let div0;
+    	let div;
     	let button;
     	let t1;
-    	let div6;
-    	let div1;
+    	let input;
+    	let t2;
+    	let t3_value = JSON.stringify(/*configEntries*/ ctx[1]) + "";
     	let t3;
-    	let div5;
-    	let div4;
-    	let div3;
-    	let div2;
-    	let select;
     	let t4;
     	let each_blocks = [];
-    	let each1_lookup = new Map();
-    	let each1_anchor;
+    	let each_1_lookup = new Map();
+    	let each_1_anchor;
     	let mounted;
     	let dispose;
-    	let each_value_1 = /*loglevels*/ ctx[2];
-    	let each_blocks_1 = [];
-
-    	for (let i = 0; i < each_value_1.length; i += 1) {
-    		each_blocks_1[i] = create_each_block_1(get_each_context_1(ctx, each_value_1, i));
-    	}
-
     	let each_value = /*configEntries*/ ctx[1];
-    	const get_key = ctx => /*k*/ ctx[7];
+    	const get_key = ctx => /*k*/ ctx[10];
 
     	for (let i = 0; i < each_value.length; i += 1) {
     		let child_ctx = get_each_context$1(ctx, each_value, i);
     		let key = get_key(child_ctx);
-    		each1_lookup.set(key, each_blocks[i] = create_each_block$1(key, child_ctx));
+    		each_1_lookup.set(key, each_blocks[i] = create_each_block$1(key, child_ctx));
     	}
 
     	return {
     		c() {
-    			div0 = element("div");
+    			div = element("div");
     			button = element("button");
     			button.textContent = "Refresh Config";
     			t1 = space();
-    			div6 = element("div");
-    			div1 = element("div");
-    			div1.innerHTML = `<label class="label">Log level</label>`;
-    			t3 = space();
-    			div5 = element("div");
-    			div4 = element("div");
-    			div3 = element("div");
-    			div2 = element("div");
-    			select = element("select");
-
-    			for (let i = 0; i < each_blocks_1.length; i += 1) {
-    				each_blocks_1[i].c();
-    			}
-
+    			input = element("input");
+    			t2 = space();
+    			t3 = text(t3_value);
     			t4 = space();
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
-    			each1_anchor = empty();
+    			each_1_anchor = empty();
     			attr(button, "class", "button is-info is-light");
-    			attr(div1, "class", "field-label is-normal");
-    			attr(div2, "class", "select");
-    			attr(div3, "class", "control");
-    			attr(div4, "class", "field");
-    			attr(div5, "class", "field-body");
-    			attr(div6, "class", "field is-horizontal");
+    			attr(input, "type", "text");
+    			attr(input, "class", "input");
+    			attr(input, "placeholder", "Search");
     		},
     		m(target, anchor) {
-    			insert(target, div0, anchor);
-    			append(div0, button);
+    			insert(target, div, anchor);
+    			append(div, button);
     			insert(target, t1, anchor);
-    			insert(target, div6, anchor);
-    			append(div6, div1);
-    			append(div6, t3);
-    			append(div6, div5);
-    			append(div5, div4);
-    			append(div4, div3);
-    			append(div3, div2);
-    			append(div2, select);
-
-    			for (let i = 0; i < each_blocks_1.length; i += 1) {
-    				each_blocks_1[i].m(select, null);
-    			}
-
+    			insert(target, input, anchor);
+    			set_input_value(input, /*configSearchterm*/ ctx[2]);
+    			insert(target, t2, anchor);
+    			insert(target, t3, anchor);
     			insert(target, t4, anchor);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].m(target, anchor);
     			}
 
-    			insert(target, each1_anchor, anchor);
+    			insert(target, each_1_anchor, anchor);
 
     			if (!mounted) {
-    				dispose = listen(button, "click", /*fetchConfig*/ ctx[3]);
+    				dispose = [
+    					listen(button, "click", /*fetchConfig*/ ctx[3]),
+    					listen(input, "input", /*input_input_handler*/ ctx[4])
+    				];
+
     				mounted = true;
     			}
     		},
     		p(ctx, dirty) {
-    			if (dirty & /*loglevels*/ 4) {
-    				each_value_1 = /*loglevels*/ ctx[2];
-    				let i;
-
-    				for (i = 0; i < each_value_1.length; i += 1) {
-    					const child_ctx = get_each_context_1(ctx, each_value_1, i);
-
-    					if (each_blocks_1[i]) {
-    						each_blocks_1[i].p(child_ctx, dirty);
-    					} else {
-    						each_blocks_1[i] = create_each_block_1(child_ctx);
-    						each_blocks_1[i].c();
-    						each_blocks_1[i].m(select, null);
-    					}
-    				}
-
-    				for (; i < each_blocks_1.length; i += 1) {
-    					each_blocks_1[i].d(1);
-    				}
-
-    				each_blocks_1.length = each_value_1.length;
+    			if (dirty & /*configSearchterm*/ 4 && input.value !== /*configSearchterm*/ ctx[2]) {
+    				set_input_value(input, /*configSearchterm*/ ctx[2]);
     			}
 
-    			if (dirty & /*saveConfig, configEntries*/ 2) {
+    			if (dirty & /*configEntries*/ 2 && t3_value !== (t3_value = JSON.stringify(/*configEntries*/ ctx[1]) + "")) set_data(t3, t3_value);
+
+    			if (dirty & /*saveConfig, configEntries, configSearchterm*/ 6) {
     				each_value = /*configEntries*/ ctx[1];
-    				each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value, each1_lookup, each1_anchor.parentNode, destroy_block, create_each_block$1, each1_anchor, get_each_context$1);
+    				each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value, each_1_lookup, each_1_anchor.parentNode, destroy_block, create_each_block$1, each_1_anchor, get_each_context$1);
     			}
     		},
     		d(detaching) {
-    			if (detaching) detach(div0);
+    			if (detaching) detach(div);
     			if (detaching) detach(t1);
-    			if (detaching) detach(div6);
-    			destroy_each(each_blocks_1, detaching);
+    			if (detaching) detach(input);
+    			if (detaching) detach(t2);
+    			if (detaching) detach(t3);
     			if (detaching) detach(t4);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].d(detaching);
     			}
 
-    			if (detaching) detach(each1_anchor);
+    			if (detaching) detach(each_1_anchor);
     			mounted = false;
-    			dispose();
+    			run_all(dispose);
     		}
     	};
     }
 
-    // (63:41) 
+    // (64:41) 
     function create_if_block_1(ctx) {
     	let p;
 
@@ -765,7 +732,7 @@ var app = (function () {
     	};
     }
 
-    // (61:4) {#if activeSection === "Application"}
+    // (62:4) {#if activeSection === "Application"}
     function create_if_block(ctx) {
     	let p;
 
@@ -784,69 +751,40 @@ var app = (function () {
     	};
     }
 
-    // (76:28) {#each loglevels as l}
-    function create_each_block_1(ctx) {
-    	let option;
-    	let t_value = /*l*/ ctx[11] + "";
-    	let t;
-    	let option_value_value;
-
-    	return {
-    		c() {
-    			option = element("option");
-    			t = text(t_value);
-    			option.__value = option_value_value = /*l*/ ctx[11];
-    			option.value = option.__value;
-    		},
-    		m(target, anchor) {
-    			insert(target, option, anchor);
-    			append(option, t);
-    		},
-    		p(ctx, dirty) {
-    			if (dirty & /*loglevels*/ 4 && t_value !== (t_value = /*l*/ ctx[11] + "")) set_data(t, t_value);
-
-    			if (dirty & /*loglevels*/ 4 && option_value_value !== (option_value_value = /*l*/ ctx[11])) {
-    				option.__value = option_value_value;
-    				option.value = option.__value;
-    			}
-    		},
-    		d(detaching) {
-    			if (detaching) detach(option);
-    		}
-    	};
-    }
-
-    // (90:4) {#each configEntries as [k,v] (k)}
-    function create_each_block$1(key_1, ctx) {
+    // (71:4) {#if !configSearchterm || k.includes(configSearchterm)}
+    function create_if_block_3(ctx) {
     	let div6;
     	let div0;
     	let label;
-    	let t0_value = /*k*/ ctx[7] + "";
+    	let t0_value = /*k*/ ctx[10] + "";
     	let t0;
     	let t1;
     	let div5;
     	let div2;
     	let div1;
-    	let input;
     	let t2;
+    	let t3;
     	let div4;
     	let div3;
     	let button;
-    	let t4;
+    	let t5;
     	let mounted;
     	let dispose;
 
-    	function input_input_handler() {
-    		/*input_input_handler*/ ctx[4].call(input, /*each_value*/ ctx[9], /*each_index*/ ctx[10]);
+    	function select_block_type_1(ctx, dirty) {
+    		if (/*v*/ ctx[11].values && /*v*/ ctx[11].values.length && /*v*/ ctx[11].values.length > 1) return create_if_block_5;
+    		return create_else_block;
     	}
 
+    	let current_block_type = select_block_type_1(ctx);
+    	let if_block0 = current_block_type(ctx);
+    	let if_block1 = /*v*/ ctx[11].description && create_if_block_4(ctx);
+
     	function click_handler() {
-    		return /*click_handler*/ ctx[5](/*k*/ ctx[7], /*v*/ ctx[8]);
+    		return /*click_handler*/ ctx[7](/*k*/ ctx[10], /*v*/ ctx[11]);
     	}
 
     	return {
-    		key: key_1,
-    		first: null,
     		c() {
     			div6 = element("div");
     			div0 = element("div");
@@ -856,17 +794,17 @@ var app = (function () {
     			div5 = element("div");
     			div2 = element("div");
     			div1 = element("div");
-    			input = element("input");
+    			if_block0.c();
     			t2 = space();
+    			if (if_block1) if_block1.c();
+    			t3 = space();
     			div4 = element("div");
     			div3 = element("div");
     			button = element("button");
     			button.textContent = "Save";
-    			t4 = space();
+    			t5 = space();
     			attr(label, "class", "label");
     			attr(div0, "class", "field-label is-normal");
-    			attr(input, "type", "text");
-    			attr(input, "class", "input");
     			attr(div1, "class", "control");
     			attr(div2, "class", "field");
     			attr(button, "class", "button");
@@ -874,7 +812,6 @@ var app = (function () {
     			attr(div4, "class", "field");
     			attr(div5, "class", "field-body");
     			attr(div6, "class", "field is-horizontal");
-    			this.first = div6;
     		},
     		m(target, anchor) {
     			insert(target, div6, anchor);
@@ -885,35 +822,336 @@ var app = (function () {
     			append(div6, div5);
     			append(div5, div2);
     			append(div2, div1);
-    			append(div1, input);
-    			set_input_value(input, /*v*/ ctx[8]);
-    			append(div5, t2);
+    			if_block0.m(div1, null);
+    			append(div2, t2);
+    			if (if_block1) if_block1.m(div2, null);
+    			append(div5, t3);
     			append(div5, div4);
     			append(div4, div3);
     			append(div3, button);
-    			append(div6, t4);
+    			append(div6, t5);
 
     			if (!mounted) {
-    				dispose = [
-    					listen(input, "input", input_input_handler),
-    					listen(button, "click", click_handler)
-    				];
-
+    				dispose = listen(button, "click", click_handler);
     				mounted = true;
     			}
     		},
     		p(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*configEntries*/ 2 && t0_value !== (t0_value = /*k*/ ctx[7] + "")) set_data(t0, t0_value);
+    			if (dirty & /*configEntries*/ 2 && t0_value !== (t0_value = /*k*/ ctx[10] + "")) set_data(t0, t0_value);
 
-    			if (dirty & /*configEntries*/ 2 && input.value !== /*v*/ ctx[8]) {
-    				set_input_value(input, /*v*/ ctx[8]);
+    			if (current_block_type === (current_block_type = select_block_type_1(ctx)) && if_block0) {
+    				if_block0.p(ctx, dirty);
+    			} else {
+    				if_block0.d(1);
+    				if_block0 = current_block_type(ctx);
+
+    				if (if_block0) {
+    					if_block0.c();
+    					if_block0.m(div1, null);
+    				}
+    			}
+
+    			if (/*v*/ ctx[11].description) {
+    				if (if_block1) {
+    					if_block1.p(ctx, dirty);
+    				} else {
+    					if_block1 = create_if_block_4(ctx);
+    					if_block1.c();
+    					if_block1.m(div2, null);
+    				}
+    			} else if (if_block1) {
+    				if_block1.d(1);
+    				if_block1 = null;
     			}
     		},
     		d(detaching) {
     			if (detaching) detach(div6);
+    			if_block0.d();
+    			if (if_block1) if_block1.d();
     			mounted = false;
-    			run_all(dispose);
+    			dispose();
+    		}
+    	};
+    }
+
+    // (90:20) {:else}
+    function create_else_block(ctx) {
+    	let input;
+    	let mounted;
+    	let dispose;
+
+    	function input_input_handler_1() {
+    		/*input_input_handler_1*/ ctx[6].call(input, /*each_value*/ ctx[12], /*each_index*/ ctx[13]);
+    	}
+
+    	return {
+    		c() {
+    			input = element("input");
+    			attr(input, "type", "text");
+    			attr(input, "class", "input");
+    		},
+    		m(target, anchor) {
+    			insert(target, input, anchor);
+    			set_input_value(input, /*v*/ ctx[11].value);
+
+    			if (!mounted) {
+    				dispose = listen(input, "input", input_input_handler_1);
+    				mounted = true;
+    			}
+    		},
+    		p(new_ctx, dirty) {
+    			ctx = new_ctx;
+
+    			if (dirty & /*configEntries*/ 2 && input.value !== /*v*/ ctx[11].value) {
+    				set_input_value(input, /*v*/ ctx[11].value);
+    			}
+    		},
+    		d(detaching) {
+    			if (detaching) detach(input);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+    }
+
+    // (79:20) {#if v.values && v.values.length && v.values.length>1}
+    function create_if_block_5(ctx) {
+    	let div;
+    	let select;
+    	let show_if = !/*v*/ ctx[11].values.includes(/*v*/ ctx[11].value);
+    	let if_block_anchor;
+    	let mounted;
+    	let dispose;
+    	let if_block = show_if && create_if_block_6(ctx);
+    	let each_value_1 = /*v*/ ctx[11].values;
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value_1.length; i += 1) {
+    		each_blocks[i] = create_each_block_1(get_each_context_1(ctx, each_value_1, i));
+    	}
+
+    	function select_change_handler() {
+    		/*select_change_handler*/ ctx[5].call(select, /*each_value*/ ctx[12], /*each_index*/ ctx[13]);
+    	}
+
+    	return {
+    		c() {
+    			div = element("div");
+    			select = element("select");
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			if (/*v*/ ctx[11].value === void 0) add_render_callback(select_change_handler);
+    			attr(div, "class", "select");
+    		},
+    		m(target, anchor) {
+    			insert(target, div, anchor);
+    			append(div, select);
+    			if (if_block) if_block.m(select, null);
+    			append(select, if_block_anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(select, null);
+    			}
+
+    			select_option(select, /*v*/ ctx[11].value);
+
+    			if (!mounted) {
+    				dispose = listen(select, "change", select_change_handler);
+    				mounted = true;
+    			}
+    		},
+    		p(new_ctx, dirty) {
+    			ctx = new_ctx;
+    			if (dirty & /*configEntries*/ 2) show_if = !/*v*/ ctx[11].values.includes(/*v*/ ctx[11].value);
+
+    			if (show_if) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block_6(ctx);
+    					if_block.c();
+    					if_block.m(select, if_block_anchor);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			if (dirty & /*configEntries*/ 2) {
+    				each_value_1 = /*v*/ ctx[11].values;
+    				let i;
+
+    				for (i = 0; i < each_value_1.length; i += 1) {
+    					const child_ctx = get_each_context_1(ctx, each_value_1, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block_1(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(select, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value_1.length;
+    			}
+
+    			if (dirty & /*configEntries*/ 2) {
+    				select_option(select, /*v*/ ctx[11].value);
+    			}
+    		},
+    		d(detaching) {
+    			if (detaching) detach(div);
+    			if (if_block) if_block.d();
+    			destroy_each(each_blocks, detaching);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+    }
+
+    // (82:28) {#if !v.values.includes(v.value) }
+    function create_if_block_6(ctx) {
+    	let option;
+    	let t_value = /*v*/ ctx[11].value + "";
+    	let t;
+    	let option_value_value;
+
+    	return {
+    		c() {
+    			option = element("option");
+    			t = text(t_value);
+    			option.selected = true;
+    			option.__value = option_value_value = /*v*/ ctx[11].value;
+    			option.value = option.__value;
+    		},
+    		m(target, anchor) {
+    			insert(target, option, anchor);
+    			append(option, t);
+    		},
+    		p(ctx, dirty) {
+    			if (dirty & /*configEntries*/ 2 && t_value !== (t_value = /*v*/ ctx[11].value + "")) set_data(t, t_value);
+
+    			if (dirty & /*configEntries*/ 2 && option_value_value !== (option_value_value = /*v*/ ctx[11].value)) {
+    				option.__value = option_value_value;
+    				option.value = option.__value;
+    			}
+    		},
+    		d(detaching) {
+    			if (detaching) detach(option);
+    		}
+    	};
+    }
+
+    // (85:28) {#each v.values as vv }
+    function create_each_block_1(ctx) {
+    	let option;
+    	let t_value = /*vv*/ ctx[14] + "";
+    	let t;
+    	let option_value_value;
+
+    	return {
+    		c() {
+    			option = element("option");
+    			t = text(t_value);
+    			option.__value = option_value_value = /*vv*/ ctx[14];
+    			option.value = option.__value;
+    		},
+    		m(target, anchor) {
+    			insert(target, option, anchor);
+    			append(option, t);
+    		},
+    		p(ctx, dirty) {
+    			if (dirty & /*configEntries*/ 2 && t_value !== (t_value = /*vv*/ ctx[14] + "")) set_data(t, t_value);
+
+    			if (dirty & /*configEntries*/ 2 && option_value_value !== (option_value_value = /*vv*/ ctx[14])) {
+    				option.__value = option_value_value;
+    				option.value = option.__value;
+    			}
+    		},
+    		d(detaching) {
+    			if (detaching) detach(option);
+    		}
+    	};
+    }
+
+    // (94:16) {#if v.description}
+    function create_if_block_4(ctx) {
+    	let p;
+    	let t_value = /*v*/ ctx[11].description + "";
+    	let t;
+
+    	return {
+    		c() {
+    			p = element("p");
+    			t = text(t_value);
+    			attr(p, "class", "help");
+    		},
+    		m(target, anchor) {
+    			insert(target, p, anchor);
+    			append(p, t);
+    		},
+    		p(ctx, dirty) {
+    			if (dirty & /*configEntries*/ 2 && t_value !== (t_value = /*v*/ ctx[11].description + "")) set_data(t, t_value);
+    		},
+    		d(detaching) {
+    			if (detaching) detach(p);
+    		}
+    	};
+    }
+
+    // (70:4) {#each configEntries as [k,v] (k)}
+    function create_each_block$1(key_1, ctx) {
+    	let first;
+    	let show_if = !/*configSearchterm*/ ctx[2] || /*k*/ ctx[10].includes(/*configSearchterm*/ ctx[2]);
+    	let if_block_anchor;
+    	let if_block = show_if && create_if_block_3(ctx);
+
+    	return {
+    		key: key_1,
+    		first: null,
+    		c() {
+    			first = empty();
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+    			this.first = first;
+    		},
+    		m(target, anchor) {
+    			insert(target, first, anchor);
+    			if (if_block) if_block.m(target, anchor);
+    			insert(target, if_block_anchor, anchor);
+    		},
+    		p(new_ctx, dirty) {
+    			ctx = new_ctx;
+    			if (dirty & /*configSearchterm, configEntries*/ 6) show_if = !/*configSearchterm*/ ctx[2] || /*k*/ ctx[10].includes(/*configSearchterm*/ ctx[2]);
+
+    			if (show_if) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block_3(ctx);
+    					if_block.c();
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+    		},
+    		d(detaching) {
+    			if (detaching) detach(first);
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach(if_block_anchor);
     		}
     	};
     }
@@ -928,8 +1166,8 @@ var app = (function () {
     		if (/*activeSection*/ ctx[0] === "Application") return create_if_block;
     		if (/*activeSection*/ ctx[0] === "Action") return create_if_block_1;
     		if (/*activeSection*/ ctx[0] === "Configuration") return create_if_block_2;
-    		if (/*activeSection*/ ctx[0] === "System") return create_if_block_3;
-    		return create_else_block;
+    		if (/*activeSection*/ ctx[0] === "System") return create_if_block_7;
+    		return create_else_block_1;
     	}
 
     	let current_block_type = select_block_type(ctx);
@@ -1004,11 +1242,11 @@ var app = (function () {
     function instance$1($$self, $$props, $$invalidate) {
     	let { activeSection } = $$props;
     	let configEntries = [];
-    	let loglevels = [];
+    	let configSearchterm = "";
 
     	onMount(() => {
     		fetchConfig();
-    		fetch("log-level/levels").then(res => res.ok ? res.json() : []).then(res => $$invalidate(2, loglevels = res)).catch(console.error);
+    		fetch("log-level/levels").then(res => res.ok ? res.json() : []).then(res => res).catch(console.error);
     		fetch("log-level").then(res => res.ok ? res.json() : []).then(res => res.level).catch(console.error);
     	});
 
@@ -1019,7 +1257,7 @@ var app = (function () {
     			const config = await res.json();
 
     			$$invalidate(1, configEntries = Object.entries(config).sort((a, b) => a[0].localeCompare(b[0])).map(e => {
-    				e[1] = valueToString(e[1]);
+    				e[1].value = valueToString(e[1].value);
     				return e;
     			}));
     		} else {
@@ -1027,12 +1265,22 @@ var app = (function () {
     		}
     	}
 
-    	function input_input_handler(each_value, each_index) {
-    		each_value[each_index][1] = this.value;
+    	function input_input_handler() {
+    		configSearchterm = this.value;
+    		$$invalidate(2, configSearchterm);
+    	}
+
+    	function select_change_handler(each_value, each_index) {
+    		each_value[each_index][1].value = select_value(this);
     		$$invalidate(1, configEntries);
     	}
 
-    	const click_handler = (k, v) => saveConfig(k, v);
+    	function input_input_handler_1(each_value, each_index) {
+    		each_value[each_index][1].value = this.value;
+    		$$invalidate(1, configEntries);
+    	}
+
+    	const click_handler = (k, v) => saveConfig(k, v.value);
 
     	$$self.$$set = $$props => {
     		if ("activeSection" in $$props) $$invalidate(0, activeSection = $$props.activeSection);
@@ -1041,9 +1289,11 @@ var app = (function () {
     	return [
     		activeSection,
     		configEntries,
-    		loglevels,
+    		configSearchterm,
     		fetchConfig,
     		input_input_handler,
+    		select_change_handler,
+    		input_input_handler_1,
     		click_handler
     	];
     }
