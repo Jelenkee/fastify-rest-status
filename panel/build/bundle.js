@@ -561,20 +561,20 @@ var app = (function () {
 
     function get_each_context$1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[10] = list[i][0];
-    	child_ctx[11] = list[i][1];
-    	child_ctx[12] = list;
-    	child_ctx[13] = i;
+    	child_ctx[8] = list[i][0];
+    	child_ctx[9] = list[i][1];
+    	child_ctx[10] = list;
+    	child_ctx[11] = i;
     	return child_ctx;
     }
 
     function get_each_context_1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[14] = list[i];
+    	child_ctx[12] = list[i];
     	return child_ctx;
     }
 
-    // (109:4) {:else}
+    // (97:4) {:else}
     function create_else_block_1(ctx) {
     	let p;
 
@@ -593,7 +593,7 @@ var app = (function () {
     	};
     }
 
-    // (107:41) 
+    // (95:41) 
     function create_if_block_7(ctx) {
     	let p;
 
@@ -612,7 +612,7 @@ var app = (function () {
     	};
     }
 
-    // (66:48) 
+    // (54:48) 
     function create_if_block_2(ctx) {
     	let div;
     	let button;
@@ -628,7 +628,7 @@ var app = (function () {
     	let mounted;
     	let dispose;
     	let each_value = /*configEntries*/ ctx[1];
-    	const get_key = ctx => /*k*/ ctx[10];
+    	const get_key = ctx => /*k*/ ctx[8];
 
     	for (let i = 0; i < each_value.length; i += 1) {
     		let child_ctx = get_each_context$1(ctx, each_value, i);
@@ -713,7 +713,7 @@ var app = (function () {
     	};
     }
 
-    // (64:41) 
+    // (52:41) 
     function create_if_block_1(ctx) {
     	let p;
 
@@ -732,7 +732,7 @@ var app = (function () {
     	};
     }
 
-    // (62:4) {#if activeSection === "Application"}
+    // (50:4) {#if activeSection === "Application"}
     function create_if_block(ctx) {
     	let p;
 
@@ -751,12 +751,12 @@ var app = (function () {
     	};
     }
 
-    // (71:4) {#if !configSearchterm || k.includes(configSearchterm)}
+    // (59:4) {#if !configSearchterm || k.includes(configSearchterm)}
     function create_if_block_3(ctx) {
     	let div6;
     	let div0;
     	let label;
-    	let t0_value = /*k*/ ctx[10] + "";
+    	let t0_value = /*k*/ ctx[8] + "";
     	let t0;
     	let t1;
     	let div5;
@@ -772,16 +772,16 @@ var app = (function () {
     	let dispose;
 
     	function select_block_type_1(ctx, dirty) {
-    		if (/*v*/ ctx[11].values && /*v*/ ctx[11].values.length && /*v*/ ctx[11].values.length > 1) return create_if_block_5;
+    		if (/*v*/ ctx[9].values && /*v*/ ctx[9].values.length && /*v*/ ctx[9].values.length > 1) return create_if_block_5;
     		return create_else_block;
     	}
 
     	let current_block_type = select_block_type_1(ctx);
     	let if_block0 = current_block_type(ctx);
-    	let if_block1 = /*v*/ ctx[11].description && create_if_block_4(ctx);
+    	let if_block1 = /*v*/ ctx[9].description && create_if_block_4(ctx);
 
     	function click_handler() {
-    		return /*click_handler*/ ctx[7](/*k*/ ctx[10], /*v*/ ctx[11]);
+    		return /*click_handler*/ ctx[7](/*k*/ ctx[8], /*v*/ ctx[9]);
     	}
 
     	return {
@@ -838,7 +838,7 @@ var app = (function () {
     		},
     		p(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*configEntries*/ 2 && t0_value !== (t0_value = /*k*/ ctx[10] + "")) set_data(t0, t0_value);
+    			if (dirty & /*configEntries*/ 2 && t0_value !== (t0_value = /*k*/ ctx[8] + "")) set_data(t0, t0_value);
 
     			if (current_block_type === (current_block_type = select_block_type_1(ctx)) && if_block0) {
     				if_block0.p(ctx, dirty);
@@ -852,7 +852,7 @@ var app = (function () {
     				}
     			}
 
-    			if (/*v*/ ctx[11].description) {
+    			if (/*v*/ ctx[9].description) {
     				if (if_block1) {
     					if_block1.p(ctx, dirty);
     				} else {
@@ -875,14 +875,14 @@ var app = (function () {
     	};
     }
 
-    // (90:20) {:else}
+    // (78:20) {:else}
     function create_else_block(ctx) {
     	let input;
     	let mounted;
     	let dispose;
 
     	function input_input_handler_1() {
-    		/*input_input_handler_1*/ ctx[6].call(input, /*each_value*/ ctx[12], /*each_index*/ ctx[13]);
+    		/*input_input_handler_1*/ ctx[6].call(input, /*each_value*/ ctx[10], /*each_index*/ ctx[11]);
     	}
 
     	return {
@@ -893,7 +893,7 @@ var app = (function () {
     		},
     		m(target, anchor) {
     			insert(target, input, anchor);
-    			set_input_value(input, /*v*/ ctx[11].value);
+    			set_input_value(input, /*v*/ ctx[9].value);
 
     			if (!mounted) {
     				dispose = listen(input, "input", input_input_handler_1);
@@ -903,8 +903,8 @@ var app = (function () {
     		p(new_ctx, dirty) {
     			ctx = new_ctx;
 
-    			if (dirty & /*configEntries*/ 2 && input.value !== /*v*/ ctx[11].value) {
-    				set_input_value(input, /*v*/ ctx[11].value);
+    			if (dirty & /*configEntries*/ 2 && input.value !== /*v*/ ctx[9].value) {
+    				set_input_value(input, /*v*/ ctx[9].value);
     			}
     		},
     		d(detaching) {
@@ -915,16 +915,16 @@ var app = (function () {
     	};
     }
 
-    // (79:20) {#if v.values && v.values.length && v.values.length>1}
+    // (67:20) {#if v.values && v.values.length && v.values.length>1}
     function create_if_block_5(ctx) {
     	let div;
     	let select;
-    	let show_if = !/*v*/ ctx[11].values.includes(/*v*/ ctx[11].value);
+    	let show_if = !/*v*/ ctx[9].values.includes(/*v*/ ctx[9].value);
     	let if_block_anchor;
     	let mounted;
     	let dispose;
     	let if_block = show_if && create_if_block_6(ctx);
-    	let each_value_1 = /*v*/ ctx[11].values;
+    	let each_value_1 = /*v*/ ctx[9].values;
     	let each_blocks = [];
 
     	for (let i = 0; i < each_value_1.length; i += 1) {
@@ -932,7 +932,7 @@ var app = (function () {
     	}
 
     	function select_change_handler() {
-    		/*select_change_handler*/ ctx[5].call(select, /*each_value*/ ctx[12], /*each_index*/ ctx[13]);
+    		/*select_change_handler*/ ctx[5].call(select, /*each_value*/ ctx[10], /*each_index*/ ctx[11]);
     	}
 
     	return {
@@ -946,7 +946,7 @@ var app = (function () {
     				each_blocks[i].c();
     			}
 
-    			if (/*v*/ ctx[11].value === void 0) add_render_callback(select_change_handler);
+    			if (/*v*/ ctx[9].value === void 0) add_render_callback(select_change_handler);
     			attr(div, "class", "select");
     		},
     		m(target, anchor) {
@@ -959,7 +959,7 @@ var app = (function () {
     				each_blocks[i].m(select, null);
     			}
 
-    			select_option(select, /*v*/ ctx[11].value);
+    			select_option(select, /*v*/ ctx[9].value);
 
     			if (!mounted) {
     				dispose = listen(select, "change", select_change_handler);
@@ -968,7 +968,7 @@ var app = (function () {
     		},
     		p(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*configEntries*/ 2) show_if = !/*v*/ ctx[11].values.includes(/*v*/ ctx[11].value);
+    			if (dirty & /*configEntries*/ 2) show_if = !/*v*/ ctx[9].values.includes(/*v*/ ctx[9].value);
 
     			if (show_if) {
     				if (if_block) {
@@ -984,7 +984,7 @@ var app = (function () {
     			}
 
     			if (dirty & /*configEntries*/ 2) {
-    				each_value_1 = /*v*/ ctx[11].values;
+    				each_value_1 = /*v*/ ctx[9].values;
     				let i;
 
     				for (i = 0; i < each_value_1.length; i += 1) {
@@ -1007,7 +1007,7 @@ var app = (function () {
     			}
 
     			if (dirty & /*configEntries*/ 2) {
-    				select_option(select, /*v*/ ctx[11].value);
+    				select_option(select, /*v*/ ctx[9].value);
     			}
     		},
     		d(detaching) {
@@ -1020,10 +1020,10 @@ var app = (function () {
     	};
     }
 
-    // (82:28) {#if !v.values.includes(v.value) }
+    // (70:28) {#if !v.values.includes(v.value) }
     function create_if_block_6(ctx) {
     	let option;
-    	let t_value = /*v*/ ctx[11].value + "";
+    	let t_value = /*v*/ ctx[9].value + "";
     	let t;
     	let option_value_value;
 
@@ -1032,7 +1032,7 @@ var app = (function () {
     			option = element("option");
     			t = text(t_value);
     			option.selected = true;
-    			option.__value = option_value_value = /*v*/ ctx[11].value;
+    			option.__value = option_value_value = /*v*/ ctx[9].value;
     			option.value = option.__value;
     		},
     		m(target, anchor) {
@@ -1040,9 +1040,9 @@ var app = (function () {
     			append(option, t);
     		},
     		p(ctx, dirty) {
-    			if (dirty & /*configEntries*/ 2 && t_value !== (t_value = /*v*/ ctx[11].value + "")) set_data(t, t_value);
+    			if (dirty & /*configEntries*/ 2 && t_value !== (t_value = /*v*/ ctx[9].value + "")) set_data(t, t_value);
 
-    			if (dirty & /*configEntries*/ 2 && option_value_value !== (option_value_value = /*v*/ ctx[11].value)) {
+    			if (dirty & /*configEntries*/ 2 && option_value_value !== (option_value_value = /*v*/ ctx[9].value)) {
     				option.__value = option_value_value;
     				option.value = option.__value;
     			}
@@ -1053,10 +1053,10 @@ var app = (function () {
     	};
     }
 
-    // (85:28) {#each v.values as vv }
+    // (73:28) {#each v.values as vv }
     function create_each_block_1(ctx) {
     	let option;
-    	let t_value = /*vv*/ ctx[14] + "";
+    	let t_value = /*vv*/ ctx[12] + "";
     	let t;
     	let option_value_value;
 
@@ -1064,7 +1064,7 @@ var app = (function () {
     		c() {
     			option = element("option");
     			t = text(t_value);
-    			option.__value = option_value_value = /*vv*/ ctx[14];
+    			option.__value = option_value_value = /*vv*/ ctx[12];
     			option.value = option.__value;
     		},
     		m(target, anchor) {
@@ -1072,9 +1072,9 @@ var app = (function () {
     			append(option, t);
     		},
     		p(ctx, dirty) {
-    			if (dirty & /*configEntries*/ 2 && t_value !== (t_value = /*vv*/ ctx[14] + "")) set_data(t, t_value);
+    			if (dirty & /*configEntries*/ 2 && t_value !== (t_value = /*vv*/ ctx[12] + "")) set_data(t, t_value);
 
-    			if (dirty & /*configEntries*/ 2 && option_value_value !== (option_value_value = /*vv*/ ctx[14])) {
+    			if (dirty & /*configEntries*/ 2 && option_value_value !== (option_value_value = /*vv*/ ctx[12])) {
     				option.__value = option_value_value;
     				option.value = option.__value;
     			}
@@ -1085,10 +1085,10 @@ var app = (function () {
     	};
     }
 
-    // (94:16) {#if v.description}
+    // (82:16) {#if v.description}
     function create_if_block_4(ctx) {
     	let p;
-    	let t_value = /*v*/ ctx[11].description + "";
+    	let t_value = /*v*/ ctx[9].description + "";
     	let t;
 
     	return {
@@ -1102,7 +1102,7 @@ var app = (function () {
     			append(p, t);
     		},
     		p(ctx, dirty) {
-    			if (dirty & /*configEntries*/ 2 && t_value !== (t_value = /*v*/ ctx[11].description + "")) set_data(t, t_value);
+    			if (dirty & /*configEntries*/ 2 && t_value !== (t_value = /*v*/ ctx[9].description + "")) set_data(t, t_value);
     		},
     		d(detaching) {
     			if (detaching) detach(p);
@@ -1110,10 +1110,10 @@ var app = (function () {
     	};
     }
 
-    // (70:4) {#each configEntries as [k,v] (k)}
+    // (58:4) {#each configEntries as [k,v] (k)}
     function create_each_block$1(key_1, ctx) {
     	let first;
-    	let show_if = !/*configSearchterm*/ ctx[2] || /*k*/ ctx[10].includes(/*configSearchterm*/ ctx[2]);
+    	let show_if = !/*configSearchterm*/ ctx[2] || /*k*/ ctx[8].includes(/*configSearchterm*/ ctx[2]);
     	let if_block_anchor;
     	let if_block = show_if && create_if_block_3(ctx);
 
@@ -1133,7 +1133,7 @@ var app = (function () {
     		},
     		p(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if (dirty & /*configSearchterm, configEntries*/ 6) show_if = !/*configSearchterm*/ ctx[2] || /*k*/ ctx[10].includes(/*configSearchterm*/ ctx[2]);
+    			if (dirty & /*configSearchterm, configEntries*/ 6) show_if = !/*configSearchterm*/ ctx[2] || /*k*/ ctx[8].includes(/*configSearchterm*/ ctx[2]);
 
     			if (show_if) {
     				if (if_block) {
@@ -1246,8 +1246,6 @@ var app = (function () {
 
     	onMount(() => {
     		fetchConfig();
-    		fetch("log-level/levels").then(res => res.ok ? res.json() : []).then(res => res).catch(console.error);
-    		fetch("log-level").then(res => res.ok ? res.json() : []).then(res => res.level).catch(console.error);
     	});
 
     	async function fetchConfig() {
@@ -1312,25 +1310,31 @@ var app = (function () {
     	let div;
     	let nav;
     	let updating_activeSection;
-    	let t;
+    	let t0;
     	let content;
+    	let t1;
+    	let label;
+    	let input;
+    	let t2;
     	let current;
+    	let mounted;
+    	let dispose;
 
     	function nav_activeSection_binding(value) {
-    		/*nav_activeSection_binding*/ ctx[2](value);
+    		/*nav_activeSection_binding*/ ctx[3](value);
     	}
 
-    	let nav_props = { sections: /*sections*/ ctx[1] };
+    	let nav_props = { sections: /*sections*/ ctx[2] };
 
-    	if (/*activeSection*/ ctx[0] !== void 0) {
-    		nav_props.activeSection = /*activeSection*/ ctx[0];
+    	if (/*activeSection*/ ctx[1] !== void 0) {
+    		nav_props.activeSection = /*activeSection*/ ctx[1];
     	}
 
     	nav = new Nav({ props: nav_props });
     	binding_callbacks.push(() => bind(nav, "activeSection", nav_activeSection_binding));
 
     	content = new Content({
-    			props: { activeSection: /*activeSection*/ ctx[0] }
+    			props: { activeSection: /*activeSection*/ ctx[1] }
     		});
 
     	return {
@@ -1338,32 +1342,52 @@ var app = (function () {
     			main = element("main");
     			div = element("div");
     			create_component(nav.$$.fragment);
-    			t = space();
+    			t0 = space();
     			create_component(content.$$.fragment);
+    			t1 = space();
+    			label = element("label");
+    			input = element("input");
+    			t2 = text("\n        Dark");
     			attr(div, "class", "columns");
+    			attr(input, "type", "checkbox");
+    			attr(label, "class", "checkbox");
     			attr(main, "class", "container px-3 pt-4");
     		},
     		m(target, anchor) {
     			insert(target, main, anchor);
     			append(main, div);
     			mount_component(nav, div, null);
-    			append(div, t);
+    			append(div, t0);
     			mount_component(content, div, null);
+    			append(main, t1);
+    			append(main, label);
+    			append(label, input);
+    			input.checked = /*darkMode*/ ctx[0];
+    			append(label, t2);
     			current = true;
+
+    			if (!mounted) {
+    				dispose = listen(input, "change", /*input_change_handler*/ ctx[4]);
+    				mounted = true;
+    			}
     		},
     		p(ctx, [dirty]) {
     			const nav_changes = {};
 
-    			if (!updating_activeSection && dirty & /*activeSection*/ 1) {
+    			if (!updating_activeSection && dirty & /*activeSection*/ 2) {
     				updating_activeSection = true;
-    				nav_changes.activeSection = /*activeSection*/ ctx[0];
+    				nav_changes.activeSection = /*activeSection*/ ctx[1];
     				add_flush_callback(() => updating_activeSection = false);
     			}
 
     			nav.$set(nav_changes);
     			const content_changes = {};
-    			if (dirty & /*activeSection*/ 1) content_changes.activeSection = /*activeSection*/ ctx[0];
+    			if (dirty & /*activeSection*/ 2) content_changes.activeSection = /*activeSection*/ ctx[1];
     			content.$set(content_changes);
+
+    			if (dirty & /*darkMode*/ 1) {
+    				input.checked = /*darkMode*/ ctx[0];
+    			}
     		},
     		i(local) {
     			if (current) return;
@@ -1380,12 +1404,15 @@ var app = (function () {
     			if (detaching) detach(main);
     			destroy_component(nav);
     			destroy_component(content);
+    			mounted = false;
+    			dispose();
     		}
     	};
     }
 
     function instance$2($$self, $$props, $$invalidate) {
     	const sections = ["Application", "Action", "Configuration", "System"];
+    	let darkMode = false;
     	let activeSection = sections[0];
 
     	onMount(() => {
@@ -1394,10 +1421,21 @@ var app = (function () {
 
     	function nav_activeSection_binding(value) {
     		activeSection = value;
-    		$$invalidate(0, activeSection);
+    		$$invalidate(1, activeSection);
     	}
 
-    	return [activeSection, sections, nav_activeSection_binding];
+    	function input_change_handler() {
+    		darkMode = this.checked;
+    		$$invalidate(0, darkMode);
+    	}
+
+    	return [
+    		darkMode,
+    		activeSection,
+    		sections,
+    		nav_activeSection_binding,
+    		input_change_handler
+    	];
     }
 
     class App extends SvelteComponent {

@@ -2,11 +2,12 @@ const { test } = require("tap");
 const plugin = require("./index");
 const pino = require("pino");
 const Fastify = require("fastify");
-let { CONFIG_PATH, ACTION_PATH } = require("./lib/constants.json");
+let { CONFIG_PATH, ACTION_PATH, SCRIPT_PATH } = require("./lib/constants.json");
 
 const prefix = "/status";
 CONFIG_PATH = prefix + CONFIG_PATH;
 ACTION_PATH = prefix + ACTION_PATH;
+SCRIPT_PATH = prefix + SCRIPT_PATH;
 
 test("config", t => {
     t.plan(6);
@@ -212,3 +213,84 @@ test("actions", t => {
     });
 });
 
+test("script", t => {
+    t.plan(3);
+    t.test("sync/async", async t => {
+        t.plan(6);
+        const fastify = Fastify();
+        fastify.register(plugin, {
+            prefix,
+            script: true
+        });
+        let res = null;
+
+        res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "let k=9;k+=9;" }).end();
+        t.equal(JSON.parse(res.body).result, undefined);
+        res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "let k=9;k+=9;return k" }).end();
+        t.equal(JSON.parse(res.body).result, 18);
+        res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "let k=9;k+=9;return Promise.resolve(k)" }).end();
+        t.equal(JSON.parse(res.body).result, 18);
+        res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "let k=9;k+=9;return await k" }).end();
+        t.equal(JSON.parse(res.body).result, 18);
+        t.ok(JSON.parse(res.body).executionTime >= 0);
+        res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({}).end();
+        t.equal(res.statusCode, 400);
+
+    });
+
+    t.test("params", async t => {
+        t.plan(4);
+        const fastify = Fastify();
+        fastify.register(plugin, {
+            prefix,
+            script: {
+                params: {
+                    this: { foo: "bar" },
+                    foo: 321
+                }
+            }
+        });
+        let res = null;
+
+        res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "return this.foo" }).end();
+        t.equal(JSON.parse(res.body).result, "bar");
+        res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "return foo" }).end();
+        t.equal(JSON.parse(res.body).result, 321);
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "return bar" }).end();
+        t.equal(res.statusCode, 400);
+
+    });
+
+    t.test("store", async t => {
+        t.plan(6);
+        const fastify = Fastify();
+        const store = {};
+        fastify.register(plugin, {
+            prefix,
+            script: {
+                store: {
+                    list() {
+                        return Object.entries(store).map(e => ({ name: e[0], script: e[1] }));
+                    },
+                    save(k, v) {
+                        store[k] = v;
+                    },
+                }
+            }
+        });
+        let res = null;
+
+        res = await fastify.inject().post(SCRIPT_PATH + "/save").payload({ script: "return 'foo'", name: "foo" }).end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().post(SCRIPT_PATH + "/save").payload({ script: "return 'bar'", name: "bar" }).end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().post(SCRIPT_PATH + "/save").payload({ script: "return 'anything'" }).end();
+        t.equal(res.statusCode, 400);
+        res = await fastify.inject().get(SCRIPT_PATH + "/list").end();
+        t.equal(JSON.parse(res.body).length, 2);
+        t.equal(JSON.parse(res.body)[0].name, "foo");
+        t.equal(res.statusCode, 200);
+
+    });
+});

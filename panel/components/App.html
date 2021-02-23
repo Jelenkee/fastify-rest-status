@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
     import { slide } from "svelte/transition";
     const sections = ["Application", "Action", "Configuration", "System"];
+    let darkMode = false;
     let activeSection = sections[0];
 
 
@@ -20,4 +21,8 @@
         <Nav bind:activeSection="{activeSection}" sections="{sections}" />
         <Content activeSection="{activeSection}" />
     </div>
+    <label class="checkbox">
+        <input type="checkbox" bind:checked="{darkMode}">
+        Dark
+    </label>
 </main>

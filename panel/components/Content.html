@@ -4,22 +4,10 @@
 
     export let activeSection;
     let configEntries = [];
-    let loglevels = [];
-    let currentLoglevel;
     let configSearchterm = "";
 
     onMount(() => {
         fetchConfig();
-        fetch("log-level/levels")
-            .then(res => res.ok ? res.json() : [])
-            .then(res => loglevels = res)
-            .catch(console.error)
-
-        fetch("log-level")
-            .then(res => res.ok ? res.json() : [])
-            .then(res => currentLoglevel = res.level)
-            .catch(console.error)
-
     });
 
     async function fetchConfig() {

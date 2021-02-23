@@ -28,7 +28,10 @@ fastify.register(plugin, {
             json: {
                 value: {},
                 description: "An object",
-
+            },
+            loglevel: {
+                value: fastify.log.level,
+                values: Object.values(fastify.log.levels.labels)
             }
         },
         configTransformer: (k, v) => {
@@ -83,20 +86,40 @@ fastify.register(plugin, {
     ],
     panel: true,
     script: {
-        that: fastify,
         params: {
             store: ["minus", "times"],
-            num: 3
+            num: 3,
+            this: { fastify: 994 }
         },
         store: {
-            get(k) {
-                return scriptStore[k];
+            list() {
+                //return Object.entries(scriptStore).map(e => ({ name: e[0], script: e[1] }));
+                return [
+                    {
+                        name: "FOO",
+                        script: "return 'foo'"
+                    },
+                    {
+                        name: "fibonacci",
+                        script: `function fibonacci(num) 
+                        {    
+                            if(num==1) 
+                                return 0; 
+                            if (num == 2) 
+                                return 1; 
+                            return fibonacci(num - 1) + fibonacci(num - 2); 
+                        }
+                        
+                        return fibonacci(10)`
+                    },
+                    {
+                        name: "banana",
+                        script: "return ('b' + 'a' + + 'a' + 'a').toUpperCase()"
+                    }
+                ]
             },
-            getAll() {
-                return Object.entries(scriptStore).map(e => ({ name: e[0], script: e[1] }));
-            },
-            set(k, v) {
-                scriptStore[k] = v;
+            save(k, v) {
+                //scriptStore[k] = v;
             }
         }
     }
