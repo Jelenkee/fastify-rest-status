@@ -1,8 +1,8 @@
 <script>
     import Nav from "./Nav.html";
     import Content from "./Content.html";
+    import Toast from "./Toast.html";
     import { onMount } from "svelte";
-    import { slide } from "svelte/transition";
     const sections = ["Application", "Action", "Configuration", "System"];
     let darkMode = false;
     let activeSection = sections[0];
@@ -25,4 +25,5 @@
         <input type="checkbox" bind:checked="{darkMode}">
         Dark
     </label>
+    <Toast />
 </main>

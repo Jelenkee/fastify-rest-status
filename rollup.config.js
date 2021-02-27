@@ -4,6 +4,8 @@ import commonjs from "@rollup/plugin-commonjs";
 import css from "rollup-plugin-css-only";
 import { terser } from "rollup-plugin-terser";
 
+const dev = process.env.DEV === "true"
+
 export default {
     input: "panel/main.js",
     output: {
@@ -26,7 +28,7 @@ export default {
             dedupe: ["svelte"]
         }),
         commonjs(),
-        false && terser({
+        !dev && terser({
             compress: true,
             mangle: true
         }),

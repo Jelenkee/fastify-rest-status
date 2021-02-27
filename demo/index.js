@@ -2,6 +2,7 @@ const Fastify = require("fastify");
 const plugin = require("../index");
 
 const fastify = Fastify({ logger: true });
+fastify.log.level = "fatal"
 let num = 0;
 let configChanges = 0;
 const scriptStore = {};
@@ -101,16 +102,16 @@ fastify.register(plugin, {
                     },
                     {
                         name: "fibonacci",
-                        script: `function fibonacci(num) 
-                        {    
-                            if(num==1) 
-                                return 0; 
-                            if (num == 2) 
-                                return 1; 
-                            return fibonacci(num - 1) + fibonacci(num - 2); 
-                        }
+                        script:
+                            `function fibonacci(num) {    
+    if(num==1) 
+        return 0; 
+    if (num == 2) 
+        return 1; 
+    return fibonacci(num - 1) + fibonacci(num - 2); 
+}
                         
-                        return fibonacci(10)`
+return fibonacci(10)`
                     },
                     {
                         name: "banana",
