@@ -1,0 +1,140 @@
+<script>
+    import { onMount } from "svelte";
+    const SCRIPT_KEY = "script";
+    const SCRIPT_NAME_KEY = "scriptName";
+
+    let scripts = [];
+    let currentScript = localStorage.getItem(SCRIPT_KEY) || "";
+    let currentScriptName = localStorage.getItem(SCRIPT_NAME_KEY) || "";
+    let scriptNameError = false;
+    let scriptError = false;
+    let scriptResult = null;
+    let scriptExecuting = false;
+    let searchTerm = "";
+
+    $: localStorage.setItem(SCRIPT_KEY, currentScript);
+    $: localStorage.setItem(SCRIPT_NAME_KEY, currentScriptName);
+
+    onMount(() => {
+        fetchScripts();
+    });
+
+    async function fetchScripts() {
+        const res = await fetch("script/list");
+        if (res.ok) {
+            scripts = await res.json();
+        } else {
+            console.error(await res.json());
+        }
+    }
+
+    async function runScript() {
+        if (scriptExecuting) {
+            return;
+        }
+        scriptExecuting = true;
+        try {
+            const res = await fetch("script/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript }) });
+            if (res.ok) {
+                scriptResult = JSON.stringify(await res.json());
+            } else {
+                console.error(await res.json());
+            }
+        } finally {
+            scriptExecuting = false;
+        }
+    }
+
+    async function saveScript() {
+        if (!currentScriptName) {
+            scriptNameError = true;
+            return
+        }
+        if (!currentScript) {
+            scriptError = true;
+            return;
+        }
+        const res = await fetch("script/save", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript, name: currentScriptName }) });
+        if (res.ok) {
+            console.log(await res.json());
+        } else {
+            console.error(await res.json());
+        }
+        fetchScripts()
+    }
+</script>
+
+<style>
+    .list {
+        max-height: 500px;
+        background-color: rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+    }
+
+    .list .over {}
+
+    .script {
+        cursor: pointer;
+    }
+
+    .script:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .mono {
+        font-family: 'Ubuntu Mono', sans-serif;
+    }
+
+    .ellipsis {
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<h5 class="title is-5">Script</h5>
+<div class="columns is-mobile">
+    <div class="column is-three-quarters">
+        <textarea rows="10" class="textarea is-small mono" class:is-danger="{scriptError}" bind:value="{currentScript}"
+            on:keyup="{e=>e.ctrlKey&&e.key==='Enter'&&runScript()}" on:input="{()=>scriptError=false}"></textarea>
+        <div class="level is-mobile mt-2">
+            <div class="level-left">
+                <div class="level-item">
+                    <div class="field has-addons">
+                        <div class="control">
+                            <input type="text" class="input" bind:value="{currentScriptName}" placeholder="Name"
+                                class:is-danger="{scriptNameError}" on:input="{()=>scriptNameError=false}" size="12">
+                        </div>
+                        <div class="control">
+                            <button class="button" on:click="{saveScript}">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <div class="field">
+                        <div class="control">
+                            <button class="button" on:click="{runScript}"
+                                class:is-loading="{scriptExecuting}">Run</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {#if scriptResult}
+        <div class="result">{scriptResult}</div>
+        {/if}
+    </div>
+    <div class="column list">
+        <input type="text" class="input is-small" bind:value="{searchTerm}" placeholder="Search">
+        {#each scripts as {name,script} (name) }
+        {#if !searchTerm || name.toLowerCase().includes(searchTerm.toLowerCase())}
+        <div class="script p-1" on:click="{()=>{currentScript=script;currentScriptName=name}}">
+            <p><b>{name}</b></p>
+            <p class="help mono ellipsis">{script}</p>
+        </div>
+        {/if}
+        {/each}
+    </div>
+</div>

@@ -1,26 +1,15 @@
 <script>
     import { onMount } from "svelte";
     import { slide } from "svelte/transition";
-
-    const SCRIPT_KEY = "script";
-    const SCRIPT_NAME_KEY = "scriptName";
+    import Loading from "./Loading.html";
+    import Scripts from "./Scripts.html";
 
     export let activeSection;
     let configEntries = [];
     let configSearchterm = "";
 
-    let scripts = [];
-    let currentScript = localStorage.getItem(SCRIPT_KEY) || "";
-    let currentScriptName = localStorage.getItem(SCRIPT_NAME_KEY) || "";
-    let scriptNameError = true;
-    let scriptResult = null;
-
-    $: localStorage.setItem(SCRIPT_KEY, currentScript);
-    $: localStorage.setItem(SCRIPT_NAME_KEY, currentScriptName);
-
     onMount(() => {
         fetchConfig();
-        fetchScripts();
     });
 
     async function fetchConfig() {
@@ -31,34 +20,6 @@
         } else {
             console.error(await res.json());
         }
-    }
-
-    async function fetchScripts() {
-        const res = await fetch("script/list");
-        if (res.ok) {
-            scripts = await res.json();
-        } else {
-            console.error(await res.json());
-        }
-    }
-
-    async function runScript() {
-        const res = await fetch("script/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript }) });
-        if (res.ok || true) {
-            scriptResult = JSON.stringify(await res.json());
-        } else {
-            console.error(await res.json());
-        }
-    }
-
-    async function saveScript() {
-        const res = await fetch("script/save", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript, name: currentScriptName }) });
-        if (res.ok) {
-            console.log(await res.json());
-        } else {
-            console.error(await res.json());
-        }
-        fetchScripts()
     }
 
     async function saveConfig(key, value) {
@@ -82,73 +43,10 @@
     }
 </script>
 
-<style>
-    .scripts {
-        max-height: 500px;
-    }
-
-    .scripts .is-narrow {
-        overflow-y: auto;
-    }
-
-    .scripts .script {
-        cursor: pointer;
-    }
-
-    .scripts .script:hover {
-        background-color: rgba(0, 0, 0, 0.1);
-    }
-
-    .mono {
-        font-family: monospace;
-    }
-</style>
-
 <div class="column pt-6">
     <h2 class="title is-4">{activeSection}</h2>
     {#if activeSection === "Application"}
-    <h5 class="title is-5">Script</h5>
-    <div class="columns scripts">
-        <div class="column is-three-quarters">
-            <textarea rows="10" class="textarea is-small mono" bind:value="{currentScript}"
-                on:keyup="{e=>e.ctrlKey&&e.key==='Enter'&&runScript()}"></textarea>
-            <div class="level mt-2">
-                <div class="level-left">
-                    <div class="level-item">
-                        <div class="field has-addons">
-                            <div class="control">
-                                <input type="text" class="input" bind:value="{currentScriptName}" placeholder="Name"
-                                    class:is-danger="{scriptNameError}" on:input="{()=>scriptNameError=false}">
-                            </div>
-                            <div class="control">
-                                <button class="button" on:click="{saveScript}">Save</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="level-right">
-                    <div class="level-item">
-                        <div class="field">
-                            <div class="control">
-                                <button class="button" on:click="{runScript}">Run</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="column">
-            {#each scripts as {name,script} (name) }
-            <div class="script p-1" on:click="{()=>{currentScript=script;currentScriptName=name}}">
-                <p><b>{name}</b></p>
-                <p class="help mono">{script.slice(0,15)+"..."}</p>
-            </div>
-            {/each}
-        </div>
-    </div>
-    {#if scriptResult}
-    <div class="result">{scriptResult}</div>
-    {/if}
+    <Scripts />
     {:else if activeSection === "Action"}
     <p>Marvel</p>
     {:else if activeSection === "Configuration"}
