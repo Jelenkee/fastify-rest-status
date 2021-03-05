@@ -2,5 +2,6 @@
     "CONFIG_PATH": "/config",
     "ACTION_PATH": "/action",
     "PANEL_PATH": "/panel",
-    "SCRIPT_PATH": "/script"
+    "SCRIPT_PATH": "/script",
+    "ENV_PATH": "/env"
 }

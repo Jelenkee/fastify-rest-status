@@ -18,11 +18,11 @@ function plugin(instance, opts, done) {
     promises.push(require("./lib/action")(log, instance, opts));
     promises.push(require("./lib/script")(log, instance, opts));
     promises.push(require("./lib/panel")(log, instance, opts));
-    instance.get(opts.prefix + "/ping", async () => "pong");
-    //TOODO actions (trigger from gui with params), async/sync
+    promises.push(require("./lib/env")(log, instance, opts));
+    instance.get(opts.prefix + "/ping", (req, rep) => rep.header("cache-control", "max-age=0, private, must-revalidate").send("pong"));
+
     //TODO get systemdata require("os")
     //TODO custom healthcheck
-    //TODO process.env
     //TODO node-server settings (port, etc)
     //TODO show routes
 

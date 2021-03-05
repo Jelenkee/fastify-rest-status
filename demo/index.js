@@ -123,7 +123,8 @@ return fibonacci(10)`
                 //scriptStore[k] = v;
             }
         }
-    }
+    },
+    env:true
 });
 fastify.get("*", (req, rep) => {
     rep.type("text/html").send(`<a href="/status/panel">Link to panel</a>`);
