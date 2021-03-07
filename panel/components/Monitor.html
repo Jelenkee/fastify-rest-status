@@ -1,0 +1,133 @@
+<script>
+    import { onMount, onDestroy } from "svelte";
+    let charts = [
+
+    ]
+    let cc = {}
+
+    onMount(() => {
+        //fetchConfig();
+
+        const ctx = document.querySelector("canvas").getContext("2d");
+        const c = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [
+                    { label: "min", data: [], borderColor: colorForString("min"), backgroundColor: "transparent", pointRadius: 0, },
+                    { label: "max", data: [], borderColor: colorForString("max"), backgroundColor: "transparent", pointRadius: 0, },
+                    { label: "avg", data: [], borderColor: colorForString("avg"), backgroundColor: "transparent", pointRadius: 0, },
+                ]
+            },
+            options: {
+                scales: {
+                    yAxes: [
+                        {
+                            ticks: {
+                                //beginAtZero: true,
+                                //max:0.85,
+                                //min:0
+                            },
+                        },
+                    ],
+                    /*xAxes: [
+                        {
+                            type: 'time',
+                            time: {
+                                unitStepSize: 30,
+                            },
+                            gridLines: {
+                                display: false,
+                            },
+                        },
+                    ],*/
+                },
+                animation: false,
+                tooltips: {
+                    enabled: false,
+                },
+            }
+        });
+
+        const MAX = 15;
+
+        async function inter() {
+            const metric = (await fetchMetric()) || { min: 0, max: 0, avg: 0 };
+            const minData = c.data.datasets[0].data;
+            const maxData = c.data.datasets[1].data;
+            const avgData = c.data.datasets[2].data;
+            const labels = c.data.labels;
+
+            const time = new Date().toTimeString().slice(0, 8);
+
+            minData.push(metric.min);
+            maxData.push(metric.max);
+            avgData.push(metric.avg);
+            labels.push(time);
+
+            if (minData.length > MAX) {
+                minData.shift();
+                maxData.shift();
+                avgData.shift();
+                labels.shift();
+            } else if (minData.length < MAX) {
+                const diff = MAX - minData.length;
+                minData.unshift(...new Array(diff).fill(0));
+                maxData.unshift(...new Array(diff).fill(0));
+                avgData.unshift(...new Array(diff).fill(0));
+                labels.unshift(...new Array(diff).fill("00:00:00"));
+            }
+
+            c.data.datasets[0].data = minData;
+            c.data.datasets[1].data = maxData;
+            c.data.datasets[2].data = avgData;
+            c.update();
+        }
+
+        const interval = setInterval(inter, 1000);
+        inter();
+
+        return () => clearInterval(interval);
+    });
+    async function fetchMetric() {
+        const res = await fetch("monitor/counter/50");
+        if (res.ok) {
+            return (cc = (await res.json()));
+        }
+    }
+
+    async function fetchConfig() {
+        const res = await fetch("config");
+        if (res.ok) {
+            const config = await res.json();
+            configEntries = Object.entries(config).sort((a, b) => a[0].localeCompare(b[0])).map(e => { e[1].value = valueToString(e[1].value); return e; });
+        } else {
+            console.error(await res.json());
+        }
+    }
+
+    function colorForString(string) {
+        const num = Math.abs(1337 + string.split("").map(s => s.charCodeAt(0)).reduce((a, b) => a * b, 55555)) % 16777215
+        return "#" + num.toString(16).padStart(6, "0").toUpperCase()
+    }
+
+    function formatNumber(num = 0) {
+        let suffix = "";
+        if (num >= 1000000000) {
+            num /= 1000000000;
+            suffix = "G"
+        } else if (num >= 1000000) {
+            num /= 1000000;
+            suffix = "M"
+        } else if (num >= 1000) {
+            num /= 1000;
+            suffig = "K"
+        }
+        num = Math.round(num * 100) / 100;
+        return num.toLocaleString(window.navigator.language || "en-US") + " " + suffix;
+    }
+</script>
+
+<p>Range (5s, 60s,...), width</p>
+<canvas></canvas>
+<p>min: {formatNumber(cc.min)}, max: {formatNumber(cc.max)}, avg: {formatNumber(cc.avg)}</p>

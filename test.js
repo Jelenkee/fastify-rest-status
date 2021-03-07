@@ -2,12 +2,13 @@ const { test } = require("tap");
 const plugin = require("./index");
 const pino = require("pino");
 const Fastify = require("fastify");
-let { CONFIG_PATH, ACTION_PATH, SCRIPT_PATH } = require("./lib/constants.json");
+let { CONFIG_PATH, ACTION_PATH, SCRIPT_PATH, MONITOR_PATH } = require("./lib/constants.json");
 
 const prefix = "/status";
 CONFIG_PATH = prefix + CONFIG_PATH;
 ACTION_PATH = prefix + ACTION_PATH;
 SCRIPT_PATH = prefix + SCRIPT_PATH;
+MONITOR_PATH = prefix + MONITOR_PATH;
 
 test("config", t => {
     t.plan(6);
@@ -263,7 +264,7 @@ test("script", t => {
     });
 
     t.test("store", async t => {
-        t.plan(6);
+        t.plan(7);
         const fastify = Fastify();
         const store = {};
         fastify.register(plugin, {
@@ -289,8 +290,78 @@ test("script", t => {
         t.equal(res.statusCode, 400);
         res = await fastify.inject().get(SCRIPT_PATH + "/list").end();
         t.equal(JSON.parse(res.body).length, 2);
-        t.equal(JSON.parse(res.body)[0].name, "foo");
+        t.ok(["foo", "bar"].includes(JSON.parse(res.body)[0].name));
+        t.ok(["foo", "bar"].includes(JSON.parse(res.body)[1].name));
         t.equal(res.statusCode, 200);
 
     });
 });
+
+test("monitor", t => {
+    t.plan(2);
+    t.test("default", async t => {
+        t.plan(8);
+        const fastify = Fastify();
+        fastify.register(plugin, {
+            prefix,
+            monitor: true
+        });
+        let res = null;
+
+        res = await fastify.inject().get(MONITOR_PATH + "/loadavg").end();
+        t.ok(JSON.parse(res.body).value < 1);
+        res = await fastify.inject().get(MONITOR_PATH + "/loadavg/8").end();
+        t.ok(JSON.parse(res.body).avg < 1);
+        t.ok(JSON.parse(res.body).min < 1);
+        t.ok(JSON.parse(res.body).max < 1);
+        res = await fastify.inject().get(MONITOR_PATH + "/loadavg/__").end();
+        t.equal(res.statusCode, 400);
+        res = await fastify.inject().get(MONITOR_PATH + "/rss").end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().get(MONITOR_PATH + "/heapUsed").end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().get(MONITOR_PATH + "/freemem").end();
+        t.equal(res.statusCode, 200);
+
+    });
+
+    t.test("interval", async t => {
+        t.plan(5);
+        const fastify = Fastify();
+        let count = 0;
+        fastify.register(plugin, {
+            prefix,
+            monitor: {
+                interval: 50,
+                metrics: {
+                    custom: () => count++
+                }
+            }
+
+        });
+        let res = null;
+
+        res = await fastify.inject().get(MONITOR_PATH + "/custom/100").end();
+        t.equal(JSON.parse(res.body).avg, 0);
+        await wait(2100)
+        res = await fastify.inject().get(MONITOR_PATH + "/custom/100").end();
+        t.ok(JSON.parse(res.body).avg > 7);
+        res = await fastify.inject().get(MONITOR_PATH + "/custom/1").end();
+        const one = JSON.parse(res.body);
+        res = await fastify.inject().get(MONITOR_PATH + "/custom/100").end();
+        const multiple = JSON.parse(res.body);
+        t.ok(one.avg > multiple.avg);
+        t.ok(one.max >= one.avg);
+        t.ok(one.min <= one.avg);
+
+    });
+
+});
+
+async function wait(ms) {
+    return new Promise((res, rej) => {
+        setTimeout(() => {
+            res();
+        }, ms);
+    });
+}

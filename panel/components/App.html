@@ -3,9 +3,17 @@
     import Content from "./Content.html";
     import Toast from "./Toast.html";
     import { onMount } from "svelte";
-    const sections = ["Application", "Action", "Configuration", "System"];
+    const KEY_SECTION = "section";
+    const sections = ["Application", "Action", "Configuration", "System", "Monitor"];
     let darkMode = false;
-    let activeSection = sections[0];
+    let activeSection = (() => {
+        let s = localStorage.getItem(KEY_SECTION);
+        if (s && sections.includes(s)) {
+            return s;
+        }
+    })() || sections[0];
+
+    $: localStorage.setItem(KEY_SECTION, activeSection);
 
 
     onMount(() => {

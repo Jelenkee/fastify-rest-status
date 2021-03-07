@@ -19,12 +19,11 @@ function plugin(instance, opts, done) {
     promises.push(require("./lib/script")(log, instance, opts));
     promises.push(require("./lib/panel")(log, instance, opts));
     promises.push(require("./lib/env")(log, instance, opts));
-    instance.get(opts.prefix + "/ping", (req, rep) => rep.header("cache-control", "max-age=0, private, must-revalidate").send("pong"));
+    promises.push(require("./lib/monitor")(log, instance, opts));
 
-    //TODO get systemdata require("os")
     //TODO custom healthcheck
     //TODO node-server settings (port, etc)
-    //TODO show routes
+    //TODO cronjobs
 
     instance.addContentTypeParser('*', { parseAs: "string" }, function (request, payload, done) {
         done(null, payload)

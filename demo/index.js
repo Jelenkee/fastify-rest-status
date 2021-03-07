@@ -124,8 +124,14 @@ return fibonacci(10)`
             }
         }
     },
-    env:true
+    env: true,
+    monitor: {
+        metrics: {
+            counter: () => Math.ceil(count++ + Math.random() * 6)
+        }
+    }
 });
+let count = 0;
 fastify.get("*", (req, rep) => {
     rep.type("text/html").send(`<a href="/status/panel">Link to panel</a>`);
 });

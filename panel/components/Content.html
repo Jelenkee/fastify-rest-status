@@ -3,20 +3,15 @@
     import { slide } from "svelte/transition";
     import Loading from "./Loading.html";
     import Scripts from "./Scripts.html";
+    import Monitor from "./Monitor.html";
 
     export let activeSection;
     let configEntries = [];
     let configSearchterm = "";
-    let ping = 0;
 
     onMount(() => {
         fetchConfig();
 
-        setInterval(async () => {
-            const start = new Date().getTime();
-            const res = await fetch("ping");
-            ping = new Date().getTime() - start;
-        }, 1000);
     });
 
     async function fetchConfig() {
@@ -51,7 +46,6 @@
 </script>
 
 <div class="column pt-6">
-    Ping: {ping} ms
     <h2 class="title is-4">{activeSection}</h2>
     {#if activeSection === "Application"}
     <Scripts />
@@ -100,6 +94,8 @@
     {/each}
     {:else if activeSection === "System"}
     <p>Processor</p>
+    {:else if activeSection === "Monitor"}
+    <Monitor />
     {:else}
     <p>Unknown section</p>
     {/if}
