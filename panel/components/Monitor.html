@@ -3,7 +3,9 @@
     let charts = [
 
     ]
-    let cc = {}
+    let cc = {};
+    let word = "";
+
 
     onMount(() => {
         //fetchConfig();
@@ -49,7 +51,7 @@
             }
         });
 
-        const MAX = 15;
+        const MAX = 15 * 2;
 
         async function inter() {
             const metric = (await fetchMetric()) || { min: 0, max: 0, avg: 0 };
@@ -72,10 +74,10 @@
                 labels.shift();
             } else if (minData.length < MAX) {
                 const diff = MAX - minData.length;
-                minData.unshift(...new Array(diff).fill(0));
-                maxData.unshift(...new Array(diff).fill(0));
-                avgData.unshift(...new Array(diff).fill(0));
-                labels.unshift(...new Array(diff).fill("00:00:00"));
+                minData.unshift(...new Array(diff).fill(null));
+                maxData.unshift(...new Array(diff).fill(null));
+                avgData.unshift(...new Array(diff).fill(null));
+                labels.unshift(...new Array(diff).fill(""));
             }
 
             c.data.datasets[0].data = minData;
@@ -90,19 +92,9 @@
         return () => clearInterval(interval);
     });
     async function fetchMetric() {
-        const res = await fetch("monitor/counter/50");
+        const res = await fetch("monitor/counter/5");
         if (res.ok) {
             return (cc = (await res.json()));
-        }
-    }
-
-    async function fetchConfig() {
-        const res = await fetch("config");
-        if (res.ok) {
-            const config = await res.json();
-            configEntries = Object.entries(config).sort((a, b) => a[0].localeCompare(b[0])).map(e => { e[1].value = valueToString(e[1].value); return e; });
-        } else {
-            console.error(await res.json());
         }
     }
 
@@ -121,13 +113,13 @@
             suffix = "M"
         } else if (num >= 1000) {
             num /= 1000;
-            suffig = "K"
+            suffix = "K"
         }
         num = Math.round(num * 100) / 100;
         return num.toLocaleString(window.navigator.language || "en-US") + " " + suffix;
     }
 </script>
 
-<p>Range (5s, 60s,...), width</p>
+<p>TODO: Range (5s, 60s,...), width, interval</p>
 <canvas></canvas>
 <p>min: {formatNumber(cc.min)}, max: {formatNumber(cc.max)}, avg: {formatNumber(cc.avg)}</p>

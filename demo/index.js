@@ -127,7 +127,7 @@ return fibonacci(10)`
     env: true,
     monitor: {
         metrics: {
-            counter: () => Math.ceil(count++ + Math.random() * 6)
+            counter: () => Math.ceil((Math.random() < .5 ? count++ : count--) + Math.random() * 6)
         }
     }
 });

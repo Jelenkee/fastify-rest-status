@@ -300,7 +300,7 @@ test("script", t => {
 test("monitor", t => {
     t.plan(2);
     t.test("default", async t => {
-        t.plan(8);
+        t.plan(9);
         const fastify = Fastify();
         fastify.register(plugin, {
             prefix,
@@ -319,6 +319,8 @@ test("monitor", t => {
         res = await fastify.inject().get(MONITOR_PATH + "/rss").end();
         t.equal(res.statusCode, 200);
         res = await fastify.inject().get(MONITOR_PATH + "/heapUsed").end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().get(MONITOR_PATH + "/heapTotal/0").end();
         t.equal(res.statusCode, 200);
         res = await fastify.inject().get(MONITOR_PATH + "/freemem").end();
         t.equal(res.statusCode, 200);

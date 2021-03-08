@@ -22,6 +22,14 @@
 </script>
 
 <style>
+    :global(.columns .column) {
+        min-width: 0;
+        /*fix bug with nowrap*/
+    }
+
+    :global(.columns) {
+        margin: 0px;
+    }
 </style>
 
 <main class="container px-3 pt-4">
