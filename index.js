@@ -20,6 +20,7 @@ function plugin(instance, opts, done) {
     promises.push(require("./lib/panel")(log, instance, opts));
     promises.push(require("./lib/env")(log, instance, opts));
     promises.push(require("./lib/monitor")(log, instance, opts));
+    promises.push(require("./lib/cron")(log, instance, opts));
 
     //TODO custom healthcheck
     //TODO node-server settings (port, etc)

@@ -2,7 +2,7 @@ const Fastify = require("fastify");
 const plugin = require("../index");
 
 const fastify = Fastify({ logger: true });
-fastify.log.level = "fatal"
+fastify.log.level = "warn"
 let num = 0;
 let configChanges = 0;
 const scriptStore = {};
@@ -129,6 +129,20 @@ return fibonacci(10)`
         metrics: {
             counter: () => Math.ceil((Math.random() < .5 ? count++ : count--) + Math.random() * 6)
         }
+    },
+    cron: {
+        jobs: [
+            {
+                task: () => new Promise((res) => {
+                    setTimeout(() => {
+                        res(count)
+                    }, Math.floor(Math.random() * 5000))
+                }),
+                id: "karl",
+                schedule: "*/4 * * * * *"
+            }
+        ],
+        storePath: require("path").join(process.cwd(), "killing")
     }
 });
 let count = 0;

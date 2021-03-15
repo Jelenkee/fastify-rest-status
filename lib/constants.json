@@ -4,5 +4,6 @@
     "PANEL_PATH": "/panel",
     "SCRIPT_PATH": "/script",
     "ENV_PATH": "/env",
-    "MONITOR_PATH": "/monitor"
+    "MONITOR_PATH": "/monitor",
+    "CRON_PATH": "/cron"
 }
