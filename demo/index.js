@@ -133,13 +133,9 @@ return fibonacci(10)`
     cron: {
         jobs: [
             {
-                task: () => new Promise((res) => {
-                    setTimeout(() => {
-                        res(count)
-                    }, Math.floor(Math.random() * 5000))
-                }),
+                task: () => require("fs-extra").readdirSync(require("path").join(__dirname,2,"..")),
                 id: "karl",
-                schedule: "*/4 * * * * *"
+                schedule: "*/8 * * * * *"
             }
         ],
         storePath: require("path").join(process.cwd(), "killing")

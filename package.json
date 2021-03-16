@@ -16,6 +16,7 @@
   "author": "Jelenkee",
   "license": "MIT",
   "dependencies": {
+    "chart.js": "^2.9.4",
     "collections": "^5.1.12",
     "cron": "^1.8.2",
     "fastify-formbody": "^5.0.0",
