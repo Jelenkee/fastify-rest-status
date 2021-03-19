@@ -26,6 +26,7 @@ function plugin(instance, opts, done) {
     //TODO node-server settings (port, etc)
     //TODO cronjobs
     //TODO add logging
+    //TODO decorators
 
     instance.addContentTypeParser('*', { parseAs: "string" }, function (request, payload, done) {
         done(null, payload)

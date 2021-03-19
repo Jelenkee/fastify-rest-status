@@ -2,7 +2,7 @@ const Fastify = require("fastify");
 const plugin = require("../index");
 
 const fastify = Fastify({ logger: true });
-fastify.log.level = "warn"
+fastify.log.level = "info"
 let num = 0;
 let configChanges = 0;
 const scriptStore = {};
@@ -133,9 +133,23 @@ return fibonacci(10)`
     cron: {
         jobs: [
             {
-                task: () => require("fs-extra").readdirSync(require("path").join(__dirname,2,"..")),
-                id: "karl",
-                schedule: "*/8 * * * * *"
+                task: async () => {
+                    const links = [
+                        "https://cdnjs.com/",
+                        "https://cdnjs.com/about",
+                        "https://cdnjs.com/libraries",
+                        "https://cdnjs.com/api",
+                        "https://opencollective.com/cdnjs?utm_source=cdnjs&utm_medium=cdnjs_link&utm_campaign=cdnjs_footer",
+                        "https://status.cdnjs.com/?utm_source=cdnjs&utm_medium=cdnjs_link&utm_campaign=cdnjs_footer",
+                        "https://www.cloudflare.com/?utm_source=cdnjs&utm_medium=cdnjs_link&utm_campaign=cdnjs_footer",
+                    ];
+                    const exec = require("util").promisify(require("child_process").exec)
+                    await Promise.all(links.map(l => exec(`curl -I "${l} > /dev/null"`)));
+                    return Math.random();
+                },
+                id: "down",
+                schedule: "*/10 * * * * *",
+                //schedule: "atra a",
             }
         ],
         storePath: require("path").join(process.cwd(), "killing")

@@ -1,14 +1,16 @@
 const { test } = require("tap");
 const plugin = require("./index");
-const pino = require("pino");
 const Fastify = require("fastify");
-let { CONFIG_PATH, ACTION_PATH, SCRIPT_PATH, MONITOR_PATH } = require("./lib/constants.json");
+const path = require("path");
+const rimraf = require("rimraf");
+let { CONFIG_PATH, ACTION_PATH, SCRIPT_PATH, MONITOR_PATH, CRON_PATH } = require("./lib/constants.json");
 
 const prefix = "/status";
 CONFIG_PATH = prefix + CONFIG_PATH;
 ACTION_PATH = prefix + ACTION_PATH;
 SCRIPT_PATH = prefix + SCRIPT_PATH;
 MONITOR_PATH = prefix + MONITOR_PATH;
+CRON_PATH = prefix + CRON_PATH;
 
 test("config", t => {
     t.plan(6);
@@ -309,11 +311,11 @@ test("monitor", t => {
         let res = null;
 
         res = await fastify.inject().get(MONITOR_PATH + "/loadavg").end();
-        t.ok(JSON.parse(res.body).value < 1);
+        t.ok(JSON.parse(res.body).value < 10);
         res = await fastify.inject().get(MONITOR_PATH + "/loadavg/8").end();
-        t.ok(JSON.parse(res.body).avg < 1);
-        t.ok(JSON.parse(res.body).min < 1);
-        t.ok(JSON.parse(res.body).max < 1);
+        t.ok(JSON.parse(res.body).avg < 10);
+        t.ok(JSON.parse(res.body).min < 10);
+        t.ok(JSON.parse(res.body).max < 10);
         res = await fastify.inject().get(MONITOR_PATH + "/loadavg/__").end();
         t.equal(res.statusCode, 400);
         res = await fastify.inject().get(MONITOR_PATH + "/rss").end();
@@ -357,6 +359,201 @@ test("monitor", t => {
         t.ok(one.min <= one.avg);
 
     });
+
+});
+
+test("cron", t => {
+    t.plan(5)
+
+    t.test("storePath", async t => {
+        t.plan(5);
+        const fastify = Fastify();
+        const storePath = path.join(process.cwd(), "izi");
+        fastify.register(plugin, {
+            prefix,
+            cron: {
+                storePath,
+                jobs: [
+                    { id: "placebo", schedule: "* * * * * *", task: console.log },
+                    { id: "placebo2", schedule: "* * 4 * * *", task: console.log },
+                ]
+            },
+        });
+        let res = null;
+
+        res = await fastify.inject().get(CRON_PATH + "/job/foo").end();
+        t.equal(res.statusCode, 404);
+        res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
+        t.equal(JSON.parse(res.body).id, "placebo");
+        t.equal(JSON.parse(res.body).active, false);
+
+        res = await fastify.inject().get(CRON_PATH + "/list").end();
+        const list = JSON.parse(res.body).map(j => j.id);
+        t.ok(list.includes("placebo"))
+        t.ok(list.includes("placebo2"))
+
+        removeStoreFolder(storePath);
+
+    });
+
+    t.test("store", async t => {
+        t.plan(7);
+        const fastify = Fastify();
+        const store = {};
+        fastify.register(plugin, {
+            prefix,
+            cron: {
+                store: {
+                    get(id) { return store[id]; },
+                    set(id, job) { store[id] = job; },
+                    list() { return Object.values(store); },
+                },
+                jobs: [
+                    { id: "placebo", schedule: "* * * * * *", task: console.log }
+                ]
+            },
+        });
+        let res = null;
+
+        res = await fastify.inject().get(CRON_PATH + "/job/foo").end();
+        t.equal(res.statusCode, 404);
+        res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
+        t.equal(JSON.parse(res.body).id, "placebo");
+        t.equal(JSON.parse(res.body).history.length, 0);
+        res = await fastify.inject().post(CRON_PATH + "/enable/placebo").end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
+        t.equal(JSON.parse(res.body).active, true);
+        res = await fastify.inject().post(CRON_PATH + "/disable/placebo").end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
+        t.equal(JSON.parse(res.body).active, false);
+    });
+
+    t.test("run", async t => {
+        t.plan(6);
+        const fastify = Fastify();
+        const store = {};
+        let count = 0;
+        fastify.register(plugin, {
+            prefix,
+            cron: {
+                store: {
+                    get(id) { return store[id]; },
+                    set(id, job) { store[id] = job; },
+                    list() { return Object.values(store); },
+                },
+                jobs: [
+                    { id: "placebo", schedule: "* * * 31 2 *", task: () => count++ }
+                ]
+            },
+        });
+        let res = null;
+
+        res = await fastify.inject().post(CRON_PATH + "/run/foo").end();
+        t.equal(res.statusCode, 404);
+        res = await fastify.inject().post(CRON_PATH + "/run/placebo").end();
+        t.equal(res.statusCode, 400);
+
+        res = await fastify.inject().post(CRON_PATH + "/enable/placebo").end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().post(CRON_PATH + "/run/placebo").end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().post(CRON_PATH + "/disable/placebo").end();
+        t.equal(res.statusCode, 200);
+        t.equal(count, 1);
+    });
+
+    t.test("schedule", async t => {
+        t.plan(4);
+        const fastify = Fastify();
+        const store = {};
+        let count = 0;
+        fastify.register(plugin, {
+            prefix,
+            cron: {
+                store: {
+                    get(id) { return store[id]; },
+                    set(id, job) { store[id] = job; },
+                    list() { return Object.values(store); },
+                },
+                jobs: [
+                    { id: "placebo", schedule: "* * * 31 2 *", task: () => count++ }
+                ]
+            },
+        });
+        let res = null;
+
+        res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
+        t.equal(JSON.parse(res.body).schedule, "* * * 31 2 *");
+
+        res = await fastify.inject().post(CRON_PATH + "/schedule/placebo").payload({ value: "* * * 31 4 *" }).end();
+        t.equal(res.statusCode, 200);
+
+        res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
+        t.equal(JSON.parse(res.body).schedule, "* * * 31 4 *");
+
+        res = await fastify.inject().post(CRON_PATH + "/schedule/placebo").payload({ value: "rarararrarar" }).end();
+        t.equal(res.statusCode, 400);
+    });
+
+    t.test("history", async t => {
+        t.plan(12);
+        const fastify = Fastify();
+        const store = {};
+        let count = 0;
+        fastify.register(plugin, {
+            prefix,
+            cron: {
+                store: {
+                    get(id) { return store[id]; },
+                    set(id, job) { store[id] = job; },
+                    list() { return Object.values(store); },
+                },
+                jobs: [
+                    {
+                        id: "placebo", schedule: "* * * 31 2 *", task: () => {
+                            if (count >= 2) {
+                                throw new Error("E");
+                            }
+                            return ++count;
+                        }
+                    }
+                ]
+            },
+        });
+        let res = null;
+
+        res = await fastify.inject().post(CRON_PATH + "/enable/placebo").end();
+        t.equal(res.statusCode, 200);
+
+        res = await fastify.inject().post(CRON_PATH + "/run/placebo").end();
+        t.equal(res.statusCode, 200);
+        await wait(100)
+        res = await fastify.inject().post(CRON_PATH + "/run/placebo").end();
+        t.equal(res.statusCode, 200);
+        await wait(100)
+        res = await fastify.inject().post(CRON_PATH + "/run/placebo").end();
+        t.equal(res.statusCode, 200);
+
+        res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
+        const history = JSON.parse(res.body).history;
+        t.equal(history.length, 3);
+        t.equal(history[0].result2, "1");
+        t.equal(history[0].result, "SUCCESS");
+        t.ok(history[0].duration >= 0);
+        t.equal(history[1].result2, "2");
+        t.equal(history[2].result, "ERROR");
+        t.equal(history[2].error.message, "E");
+
+        res = await fastify.inject().post(CRON_PATH + "/disable/placebo").end();
+        t.equal(res.statusCode, 200);
+
+    });
+
+    function removeStoreFolder(p) {
+        rimraf(p, () => { });
+    }
 
 });
 
