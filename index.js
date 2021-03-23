@@ -28,10 +28,10 @@ function plugin(instance, opts, done) {
     //TODO add logging
     //TODO decorators
 
-    instance.addContentTypeParser('*', { parseAs: "string" }, function (request, payload, done) {
+    /*instance.addContentTypeParser('*', { parseAs: "string" }, function (request, payload, done) {
         done(null, payload)
     });
-    instance.register(require("fastify-formbody"));
+    instance.register(require("fastify-formbody"));*/
 
     Promise.all(promises).then(() => done()).catch(e => done(e));
 }

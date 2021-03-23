@@ -2,7 +2,7 @@ const Fastify = require("fastify");
 const plugin = require("../index");
 
 const fastify = Fastify({ logger: true });
-fastify.log.level = "info"
+fastify.log.level = "warn"
 let num = 0;
 let configChanges = 0;
 const scriptStore = {};

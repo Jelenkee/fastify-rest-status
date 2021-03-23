@@ -149,7 +149,7 @@ test("config", t => {
         res = await fastify.inject().get(CONFIG_PATH + "/bar").end();
         t.deepEqual(JSON.parse(res.body), { value: "barbar" });
 
-        res = await fastify.inject().put(CONFIG_PATH + "/bar?value=baz").end();
+        res = await fastify.inject().put(CONFIG_PATH + "/bar").payload({ value: "baz" }).end();
         res = await fastify.inject().get(CONFIG_PATH + "/bar").end();
         t.deepEqual(JSON.parse(res.body), { value: "baz" });
 
@@ -171,7 +171,7 @@ test("actions", t => {
                 { id: "bar", func: () => { } },
             ]
         });
-        const res = await fastify.inject().get(ACTION_PATH).end();
+        const res = await fastify.inject().get(ACTION_PATH + "/list").end();
         t.deepEqual(JSON.parse(res.body), [
             { id: "foo", name: "FOO", params: ["a", "b"] },
             { id: "bar", name: "bar", params: [] },
@@ -179,7 +179,7 @@ test("actions", t => {
     });
 
     t.test("error", async t => {
-        t.plan(2);
+        t.plan(3);
         const fastify = Fastify();
         fastify.register(plugin, {
             prefix,
@@ -188,14 +188,16 @@ test("actions", t => {
             ]
         });
         let res = null;
-        res = await fastify.inject().post(ACTION_PATH + "/bar").end();
+        res = await fastify.inject().post(ACTION_PATH + "/run/bar").payload({ params: {} }).end();
         t.equal(res.statusCode, 400);
-        res = await fastify.inject().post(ACTION_PATH + "/foo").end();
+        res = await fastify.inject().post(ACTION_PATH + "/run/foo").end();
+        t.equal(res.statusCode, 400);
+        res = await fastify.inject().post(ACTION_PATH + "/run/foo").payload({ params: {} }).end();
         t.equal(res.statusCode, 500);
     });
 
     t.test("success", async t => {
-        t.plan(4);
+        t.plan(3);
         const fastify = Fastify();
         fastify.register(plugin, {
             prefix,
@@ -205,13 +207,11 @@ test("actions", t => {
             ]
         });
         let res = null;
-        res = await fastify.inject().post(ACTION_PATH + "/nothing").end();
+        res = await fastify.inject().post(ACTION_PATH + "/run/nothing").payload({ params: {} }).end();
         t.deepEqual(JSON.parse(res.body), {});
-        res = await fastify.inject().post(ACTION_PATH + "/something").end();
+        res = await fastify.inject().post(ACTION_PATH + "/run/something").payload({ params: {} }).end();
         t.deepEqual(JSON.parse(res.body), {});
-        res = await fastify.inject().post(ACTION_PATH + "/something?a=a&b=99").end();
-        t.deepEqual(JSON.parse(res.body), { a: "a", b: "99" });
-        res = await fastify.inject().post(ACTION_PATH + "/something").payload("a=a&b=99").headers({ "content-type": "application/x-www-form-urlencoded" }).end();
+        res = await fastify.inject().post(ACTION_PATH + "/run/something").payload({ params: { a: "a", b: "99" } }).end();
         t.deepEqual(JSON.parse(res.body), { a: "a", b: "99" });
     });
 });
@@ -487,13 +487,13 @@ test("cron", t => {
         res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
         t.equal(JSON.parse(res.body).schedule, "* * * 31 2 *");
 
-        res = await fastify.inject().post(CRON_PATH + "/schedule/placebo").payload({ value: "* * * 31 4 *" }).end();
+        res = await fastify.inject().post(CRON_PATH + "/schedule/placebo").payload({ schedule: "* * * 31 4 *" }).end();
         t.equal(res.statusCode, 200);
 
         res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
         t.equal(JSON.parse(res.body).schedule, "* * * 31 4 *");
 
-        res = await fastify.inject().post(CRON_PATH + "/schedule/placebo").payload({ value: "rarararrarar" }).end();
+        res = await fastify.inject().post(CRON_PATH + "/schedule/placebo").payload({ schedule: "rarararrarar" }).end();
         t.equal(res.statusCode, 400);
     });
 
