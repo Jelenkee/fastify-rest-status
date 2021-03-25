@@ -92,7 +92,7 @@
         return () => clearInterval(interval);
     });
     async function fetchMetric() {
-        const res = await fetch("monitor/counter/5");
+        const res = await fetch(PANEL_PATH + "/monitor/counter/5");
         if (res.ok) {
             return (cc = (await res.json()));
         }

@@ -1227,7 +1227,7 @@ var app = (function () {
     	});
 
     	async function fetchScripts() {
-    		const res = await fetch("script/list");
+    		const res = await fetch(PANEL_PATH + "/script/list");
 
     		if (res.ok) {
     			$$invalidate(2, scripts = await res.json());
@@ -1244,7 +1244,7 @@ var app = (function () {
     		$$invalidate(6, scriptExecuting = true);
 
     		try {
-    			const res = await fetch("script/run", {
+    			const res = await fetch(PANEL_PATH + "/script/run", {
     				method: "POST",
     				headers: { "content-type": "application/json" },
     				body: JSON.stringify({ script: currentScript })
@@ -1271,7 +1271,7 @@ var app = (function () {
     			return;
     		}
 
-    		const res = await fetch("script/save", {
+    		const res = await fetch(PANEL_PATH + "/script/save", {
     			method: "POST",
     			headers: { "content-type": "application/json" },
     			body: JSON.stringify({
@@ -1540,7 +1540,7 @@ var app = (function () {
     	});
 
     	async function fetchMetric() {
-    		const res = await fetch("monitor/counter/5");
+    		const res = await fetch(PANEL_PATH + "/monitor/counter/5");
 
     		if (res.ok) {
     			return $$invalidate(0, cc = await res.json());
@@ -2300,7 +2300,7 @@ var app = (function () {
     }
 
     async function saveConfig(key, value) {
-    	const res = await fetch("config/" + key, {
+    	const res = await fetch(PANEL_PATH + "/config/" + key, {
     		method: "PUT",
     		headers: { "content-type": "application/json" },
     		body: JSON.stringify({ value })
@@ -2334,7 +2334,7 @@ var app = (function () {
     	});
 
     	async function fetchConfig() {
-    		const res = await fetch("config");
+    		const res = await fetch(PANEL_PATH + "/config");
 
     		if (res.ok) {
     			const config = await res.json();
