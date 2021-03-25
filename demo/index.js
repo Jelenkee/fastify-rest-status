@@ -131,7 +131,7 @@ return fibonacci(10)`
         }
     },
     cron: {
-        jobs: [
+        jobs: [] || [
             {
                 task: async () => {
                     const links = [
@@ -153,6 +153,9 @@ return fibonacci(10)`
             }
         ],
         storePath: require("path").join(process.cwd(), "killing")
+    },
+    auth: false && {
+        writeToken: "salmigkeit777"
     }
 });
 let count = 0;

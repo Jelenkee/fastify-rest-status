@@ -341,7 +341,6 @@ test("monitor", t => {
                     custom: () => count++
                 }
             }
-
         });
         let res = null;
 
@@ -555,6 +554,31 @@ test("cron", t => {
         rimraf(p, () => { });
     }
 
+});
+
+test("auth", t => {
+    t.plan(0); return
+    t.plan(1);
+    t.test("api only", async t => {
+        t.plan(3);
+        const fastify = Fastify();
+        const token = "ABCEFGHRIJDACASE";
+        fastify.register(plugin, {
+            prefix,
+            monitor: true,
+            auth: { writeToken: token }
+        });
+        fastify.get("/foo", (req, rep) => rep.send("foo"));
+        let res = null;
+
+        res = await fastify.inject().get(MONITOR_PATH + "/rss").end();
+        t.equal(res.statusCode, 401);
+
+        res = await fastify.inject().get("/foo").end();
+        t.equal(res.statusCode, 200);
+        t.equal(res.body, "foo");
+
+    });
 });
 
 async function wait(ms) {

@@ -14,6 +14,7 @@ function plugin(instance, opts, done) {
     }
     const log = instance.log.child(loggerOptions);
     const promises = [];
+    promises.push(require("./lib/auth")(log, instance, opts));
     promises.push(require("./lib/config")(log, instance, opts));
     promises.push(require("./lib/action")(log, instance, opts));
     promises.push(require("./lib/script")(log, instance, opts));
