@@ -242,7 +242,7 @@ test("script", t => {
     });
 
     t.test("params", async t => {
-        t.plan(4);
+        t.plan(8);
         const fastify = Fastify();
         fastify.register(plugin, {
             prefix,
@@ -260,13 +260,19 @@ test("script", t => {
         res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "return foo" }).end();
         t.equal(JSON.parse(res.body).result, 321);
         t.equal(res.statusCode, 200);
+        t.notOk(JSON.parse(res.body).error);
         res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "return bar" }).end();
         t.equal(res.statusCode, 400);
+        t.ok(JSON.parse(res.body).error.message);
+        t.ok(JSON.parse(res.body).error.name);
+        res = await fastify.inject().post(SCRIPT_PATH + "/run").payload({ script: "console.info('foo');console.error('bar');console.log('baz')" }).end();
+        const { EOL } = require("os");
+        t.equal(JSON.parse(res.body).output, `foo${EOL}bar${EOL}baz${EOL}`)
 
     });
 
     t.test("store", async t => {
-        t.plan(7);
+        t.plan(9);
         const fastify = Fastify();
         const store = {};
         fastify.register(plugin, {
@@ -279,6 +285,9 @@ test("script", t => {
                     save(k, v) {
                         store[k] = v;
                     },
+                    delete(k) {
+                        delete store[k];
+                    }
                 }
             }
         });
@@ -295,6 +304,10 @@ test("script", t => {
         t.ok(["foo", "bar"].includes(JSON.parse(res.body)[0].name));
         t.ok(["foo", "bar"].includes(JSON.parse(res.body)[1].name));
         t.equal(res.statusCode, 200);
+        res = await fastify.inject().delete(SCRIPT_PATH + "/delete/foo").end();
+        t.equal(res.statusCode, 200);
+        res = await fastify.inject().get(SCRIPT_PATH + "/list").end();
+        t.equal(JSON.parse(res.body).length, 1);
 
     });
 });

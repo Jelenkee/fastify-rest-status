@@ -36,9 +36,9 @@
         try {
             const res = await fetch(PANEL_PATH + "/script/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript }) });
             if (res.ok) {
-                scriptResult = JSON.stringify(await res.json());
+                scriptResult = await res.json();
             } else {
-                console.error(await res.json());
+                scriptResult = await res.json();
             }
         } finally {
             scriptExecuting = false;
@@ -121,7 +121,11 @@
             </div>
         </div>
         {#if scriptResult}
-        <div class="result">{scriptResult}</div>
+        <div class="result">
+            <code>R: {scriptResult.result}</code>
+            <code>time: {scriptResult.executionTime}</code>
+            <pre>{(scriptResult.error&&scriptResult.error.message)||scriptResult.output}</pre>
+        </div>
         {/if}
     </div>
     <div class="column list">

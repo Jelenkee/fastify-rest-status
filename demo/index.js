@@ -121,7 +121,8 @@ return fibonacci(10)`
             },
             save(k, v) {
                 //scriptStore[k] = v;
-            }
+            },
+            delete(k) { }
         }
     },
     env: true,

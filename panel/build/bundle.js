@@ -863,20 +863,52 @@ var app = (function () {
     // (123:8) {#if scriptResult}
     function create_if_block_1$1(ctx) {
     	let div;
-    	let t;
+    	let code0;
+    	let t0;
+    	let t1_value = /*scriptResult*/ ctx[5].result + "";
+    	let t1;
+    	let t2;
+    	let code1;
+    	let t3;
+    	let t4_value = /*scriptResult*/ ctx[5].executionTime + "";
+    	let t4;
+    	let t5;
+    	let pre;
+    	let t6_value = (/*scriptResult*/ ctx[5].error && /*scriptResult*/ ctx[5].error.message || /*scriptResult*/ ctx[5].output) + "";
+    	let t6;
 
     	return {
     		c() {
     			div = element("div");
-    			t = text(/*scriptResult*/ ctx[5]);
+    			code0 = element("code");
+    			t0 = text("R: ");
+    			t1 = text(t1_value);
+    			t2 = space();
+    			code1 = element("code");
+    			t3 = text("time: ");
+    			t4 = text(t4_value);
+    			t5 = space();
+    			pre = element("pre");
+    			t6 = text(t6_value);
     			attr(div, "class", "result");
     		},
     		m(target, anchor) {
     			insert(target, div, anchor);
-    			append(div, t);
+    			append(div, code0);
+    			append(code0, t0);
+    			append(code0, t1);
+    			append(div, t2);
+    			append(div, code1);
+    			append(code1, t3);
+    			append(code1, t4);
+    			append(div, t5);
+    			append(div, pre);
+    			append(pre, t6);
     		},
     		p(ctx, dirty) {
-    			if (dirty & /*scriptResult*/ 32) set_data(t, /*scriptResult*/ ctx[5]);
+    			if (dirty & /*scriptResult*/ 32 && t1_value !== (t1_value = /*scriptResult*/ ctx[5].result + "")) set_data(t1, t1_value);
+    			if (dirty & /*scriptResult*/ 32 && t4_value !== (t4_value = /*scriptResult*/ ctx[5].executionTime + "")) set_data(t4, t4_value);
+    			if (dirty & /*scriptResult*/ 32 && t6_value !== (t6_value = (/*scriptResult*/ ctx[5].error && /*scriptResult*/ ctx[5].error.message || /*scriptResult*/ ctx[5].output) + "")) set_data(t6, t6_value);
     		},
     		d(detaching) {
     			if (detaching) detach(div);
@@ -884,7 +916,7 @@ var app = (function () {
     	};
     }
 
-    // (130:8) {#if !searchTerm || name.toLowerCase().includes(searchTerm.toLowerCase())}
+    // (134:8) {#if !searchTerm || name.toLowerCase().includes(searchTerm.toLowerCase())}
     function create_if_block$1(ctx) {
     	let div;
     	let p0;
@@ -944,7 +976,7 @@ var app = (function () {
     	};
     }
 
-    // (129:8) {#each scripts as {name,script}
+    // (133:8) {#each scripts as {name,script}
     function create_each_block$2(key_1, ctx) {
     	let first;
     	let show_if = !/*searchTerm*/ ctx[7] || /*name*/ ctx[18].toLowerCase().includes(/*searchTerm*/ ctx[7].toLowerCase());
@@ -1251,9 +1283,9 @@ var app = (function () {
     			});
 
     			if (res.ok) {
-    				$$invalidate(5, scriptResult = JSON.stringify(await res.json()));
+    				$$invalidate(5, scriptResult = await res.json());
     			} else {
-    				console.error(await res.json());
+    				$$invalidate(5, scriptResult = await res.json());
     			}
     		} finally {
     			$$invalidate(6, scriptExecuting = false);
