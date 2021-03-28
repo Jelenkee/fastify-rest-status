@@ -18,11 +18,15 @@ export default {
         svelte({
             extensions: [".html"],
             include: "panel/components/**/*.html",
-            compilerOptions: false
+            compilerOptions: {
+                css: true,
+                dev: dev
+            },
+            emitCss: false,
         }),
-        css({
-            output: "bundle.css"
-        }),
+        /*css({
+            output: false && "bundle.css"
+        }),*/
         resolve({
             browser: true,
             dedupe: ["svelte"]

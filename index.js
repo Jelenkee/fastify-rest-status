@@ -23,16 +23,8 @@ function plugin(instance, opts, done) {
     promises.push(require("./lib/monitor")(log, instance, opts));
     promises.push(require("./lib/cron")(log, instance, opts));
 
-    //TODO custom healthcheck
-    //TODO node-server settings (port, etc)
-    //TODO cronjobs
     //TODO add logging
     //TODO decorators
-
-    /*instance.addContentTypeParser('*', { parseAs: "string" }, function (request, payload, done) {
-        done(null, payload)
-    });
-    instance.register(require("fastify-formbody"));*/
 
     Promise.all(promises).then(() => done()).catch(e => done(e));
 }

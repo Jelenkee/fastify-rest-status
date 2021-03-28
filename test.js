@@ -189,7 +189,7 @@ test("actions", t => {
         });
         let res = null;
         res = await fastify.inject().post(ACTION_PATH + "/run/bar").payload({ params: {} }).end();
-        t.equal(res.statusCode, 400);
+        t.equal(res.statusCode, 404);
         res = await fastify.inject().post(ACTION_PATH + "/run/foo").end();
         t.equal(res.statusCode, 400);
         res = await fastify.inject().post(ACTION_PATH + "/run/foo").payload({ params: {} }).end();

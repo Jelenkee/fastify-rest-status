@@ -110,7 +110,7 @@ fastify.register(plugin, {
         return 1; 
     return fibonacci(num - 1) + fibonacci(num - 2); 
 }
-                        
+
 return fibonacci(10)`
                     },
                     {
