@@ -8,7 +8,7 @@ function plugin(instance, opts, done) {
         done(new Error("prefix is required"));
         return;
     }
-    const loggerOptions = { name: NAME };
+    const loggerOptions = { plugin: NAME };
     if (typeof opts.logLevel === "string") {
         loggerOptions.level = opts.logLevel;
     }

@@ -179,7 +179,7 @@ test("actions", t => {
     });
 
     t.test("error", async t => {
-        t.plan(3);
+        t.plan(4);
         const fastify = Fastify();
         fastify.register(plugin, {
             prefix,
@@ -194,10 +194,11 @@ test("actions", t => {
         t.equal(res.statusCode, 400);
         res = await fastify.inject().post(ACTION_PATH + "/run/foo").payload({ params: {} }).end();
         t.equal(res.statusCode, 500);
+        t.rejects(fastify.runAction("foo"));
     });
 
     t.test("success", async t => {
-        t.plan(3);
+        t.plan(4);
         const fastify = Fastify();
         fastify.register(plugin, {
             prefix,
@@ -213,6 +214,7 @@ test("actions", t => {
         t.deepEqual(JSON.parse(res.body), {});
         res = await fastify.inject().post(ACTION_PATH + "/run/something").payload({ params: { a: "a", b: "99" } }).end();
         t.deepEqual(JSON.parse(res.body), { a: "a", b: "99" });
+        t.equal((await fastify.runAction("something", { foo: true })).foo, true);
     });
 });
 
@@ -324,7 +326,7 @@ test("monitor", t => {
         let res = null;
 
         res = await fastify.inject().get(MONITOR_PATH + "/loadavg").end();
-        t.ok(JSON.parse(res.body).value < 10);
+        t.ok(JSON.parse(res.body) < 10);
         res = await fastify.inject().get(MONITOR_PATH + "/loadavg/8").end();
         t.ok(JSON.parse(res.body).avg < 10);
         t.ok(JSON.parse(res.body).min < 10);
@@ -343,7 +345,7 @@ test("monitor", t => {
     });
 
     t.test("interval", async t => {
-        t.plan(5);
+        t.plan(7);
         const fastify = Fastify();
         let count = 0;
         fastify.register(plugin, {
@@ -369,13 +371,15 @@ test("monitor", t => {
         t.ok(one.avg > multiple.avg);
         t.ok(one.max >= one.avg);
         t.ok(one.min <= one.avg);
+        t.ok(fastify.getMetric("rss") > 1);
+        t.ok(fastify.getMetric("rss", 9).min > 1);
 
     });
 
 });
 
 test("cron", t => {
-    t.plan(5)
+    t.plan(6)
 
     t.test("storePath", async t => {
         t.plan(5);
@@ -563,6 +567,43 @@ test("cron", t => {
 
     });
 
+    t.test("decorators", async t => {
+        t.plan(6);
+        const fastify = Fastify();
+        const PLACEBO = "placebo";
+        const store = {};
+        let count = 0;
+        fastify.register(plugin, {
+            prefix,
+            cron: {
+                store: {
+                    get(id) { return store[id]; },
+                    set(id, job) { store[id] = job; },
+                    list() { return Object.values(store); },
+                },
+                jobs: [
+                    { id: PLACEBO, schedule: "* * * 31 2 *", task: () => count++ }
+                ]
+            },
+        });
+        let job;
+
+        await fastify.ready();
+        job = await fastify.getCronjob(PLACEBO);
+        t.equal(job.active, false);
+        await fastify.enableCronjob(PLACEBO);
+        job = await fastify.getCronjob(PLACEBO);
+        t.equal(job.active, true);
+        t.equal((await fastify.getCronjobList())[0].id, PLACEBO);
+        await fastify.runCronjob(PLACEBO);
+        t.equal(count, 1);
+        await fastify.scheduleJob(PLACEBO, "* * * 31 4 *");
+        await fastify.disableCronjob(PLACEBO);
+        job = await fastify.getCronjob(PLACEBO);
+        t.equal(job.active, false);
+        t.equal(job.schedule, "* * * 31 4 *");
+    });
+
     function removeStoreFolder(p) {
         rimraf(p, () => { });
     }
@@ -570,7 +611,7 @@ test("cron", t => {
 });
 
 test("auth", t => {
-    t.plan(0); return
+    t.plan(0); return;
     t.plan(1);
     t.test("api only", async t => {
         t.plan(3);
