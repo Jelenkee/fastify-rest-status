@@ -20,7 +20,7 @@
     });
 
     async function fetchScripts() {
-        const res = await fetch(PANEL_PATH + "/script/list");
+        const res = await fetch(BASE_PATH + "/script/list");
         if (res.ok) {
             scripts = await res.json();
         } else {
@@ -34,7 +34,7 @@
         }
         scriptExecuting = true;
         try {
-            const res = await fetch(PANEL_PATH + "/script/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript }) });
+            const res = await fetch(BASE_PATH + "/script/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript }) });
             if (res.ok) {
                 scriptResult = await res.json();
             } else {
@@ -54,7 +54,7 @@
             scriptError = true;
             return;
         }
-        const res = await fetch(PANEL_PATH + "/script/save", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript, name: currentScriptName }) });
+        const res = await fetch(BASE_PATH + "/script/save", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript, name: currentScriptName }) });
         if (res.ok) {
             console.log(await res.json());
         } else {

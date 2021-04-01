@@ -1,6 +1,6 @@
 <script>
     import { slide } from "svelte/transition";
-    import { toasts, addToast } from "../toast.js"
+    import { toasts } from "../toast.js"
 </script>
 
 <style>
@@ -10,4 +10,3 @@
 {#each Object.values($toasts) as {clazz,text,id} (id) }
 <p transition:slide>{clazz},{text}</p>
 {/each}
-<button style="display: block;" class="button" on:click="{()=>{addToast('danger',String(new Date().getTime()))}}">LIKCC</button>

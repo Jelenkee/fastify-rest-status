@@ -15,7 +15,7 @@
     });
 
     async function fetchConfig() {
-        const res = await fetch(PANEL_PATH + "/config");
+        const res = await fetch(BASE_PATH + "/config");
         if (res.ok) {
             const config = await res.json();
             configEntries = Object.entries(config).sort((a, b) => a[0].localeCompare(b[0])).map(e => { e[1].value = valueToString(e[1].value); return e; });
@@ -25,7 +25,7 @@
     }
 
     async function saveConfig(key, value) {
-        const res = await fetch(PANEL_PATH + "/config/" + key, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ value }) });
+        const res = await fetch(BASE_PATH + "/config/" + key, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ value }) });
         if (res.ok) {
             console.log(await res.json());
         } else {
