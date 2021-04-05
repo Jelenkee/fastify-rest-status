@@ -45,58 +45,56 @@
     }
 </script>
 
-<div class="column pt-6 pr-0">
-    <h2 class="title is-4">{activeSection}</h2>
-    {#if activeSection === "Application"}
-    <Scripts />
-    {:else if activeSection === "Action"}
-    <p>Marvel</p>
-    {:else if activeSection === "Configuration"}
-    <div><button class="button is-info is-light" on:click="{fetchConfig}">Refresh Config</button></div>
-    <input type="text" class="input" placeholder="Search" bind:value="{configSearchterm}">
-    {JSON.stringify(configEntries)}
-    {#each configEntries as [k,v] (k)}
-    {#if !configSearchterm || k.includes(configSearchterm)}
-    <div class="field is-horizontal">
-        <div class="field-label is-normal">
-            <label class="label">{k}</label>
-        </div>
-        <div class="field-body">
-            <div class="field">
-                <div class="control">
-                    {#if v.values && v.values.length && v.values.length>1}
-                    <div class="select">
-                        <select bind:value="{v.value}">
-                            {#if !v.values.includes(v.value) }
-                            <option selected>{v.value}</option>
-                            {/if}
-                            {#each v.values as vv }
-                            <option>{vv}</option>
-                            {/each}
-                        </select>
-                    </div>
-                    {:else}
-                    <input type="text" class="input" bind:value="{v.value}">
-                    {/if}
+<h2 class="text-xl pt-6">{activeSection}</h2>
+{#if activeSection === "Application"}
+<Scripts />
+{:else if activeSection === "Action"}
+<p>Marvel</p>
+{:else if activeSection === "Configuration"}
+<div><button class="button is-info is-light" on:click="{fetchConfig}">Refresh Config</button></div>
+<input type="text" class="input" placeholder="Search" bind:value="{configSearchterm}">
+{JSON.stringify(configEntries)}
+{#each configEntries as [k,v] (k)}
+{#if !configSearchterm || k.includes(configSearchterm)}
+<div class="field is-horizontal">
+    <div class="field-label is-normal">
+        <label class="label">{k}</label>
+    </div>
+    <div class="field-body">
+        <div class="field">
+            <div class="control">
+                {#if v.values && v.values.length && v.values.length>1}
+                <div class="select">
+                    <select bind:value="{v.value}">
+                        {#if !v.values.includes(v.value) }
+                        <option selected>{v.value}</option>
+                        {/if}
+                        {#each v.values as vv }
+                        <option>{vv}</option>
+                        {/each}
+                    </select>
                 </div>
-                {#if v.description}
-                <p class="help">{v.description}</p>
+                {:else}
+                <input type="text" class="input" bind:value="{v.value}">
                 {/if}
             </div>
-            <div class="field">
-                <div class="control">
-                    <button class="button" on:click="{()=>saveConfig(k,v.value)}">Save</button>
-                </div>
+            {#if v.description}
+            <p class="help">{v.description}</p>
+            {/if}
+        </div>
+        <div class="field">
+            <div class="control">
+                <button class="button" on:click="{()=>saveConfig(k,v.value)}">Save</button>
             </div>
         </div>
     </div>
-    {/if}
-    {/each}
-    {:else if activeSection === "System"}
-    <p>Processor</p>
-    {:else if activeSection === "Monitor"}
-    <Monitor />
-    {:else}
-    <p>Unknown section</p>
-    {/if}
 </div>
+{/if}
+{/each}
+{:else if activeSection === "System"}
+<p>Processor</p>
+{:else if activeSection === "Monitor"}
+<Monitor />
+{:else}
+<p>Unknown section</p>
+{/if}

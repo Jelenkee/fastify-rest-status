@@ -1,19 +1,27 @@
 <script>
     import Nav from "./Nav.html";
     import Content from "./Content.html";
-    import Toast from "./Toast.html";
     import { onMount } from "svelte";
+
     const KEY_SECTION = "section";
+    const KEY_DARK = "dark";
+    const KEY_WIDE = "wide";
     const sections = ["Application", "Action", "Configuration", "System", "Monitor"];
-    let darkMode = false;
+    const html = document.body.parentNode;
+    let darkMode = Boolean(localStorage.getItem(KEY_DARK));
+    let wide = Boolean(localStorage.getItem(KEY_WIDE));
     let activeSection = (() => {
         let s = localStorage.getItem(KEY_SECTION);
         if (s && sections.includes(s)) {
             return s;
         }
     })() || sections[0];
+    let openAside = false;
 
     $: localStorage.setItem(KEY_SECTION, activeSection);
+    $: localStorage.setItem(KEY_DARK, darkMode ? 1 : "");
+    $: localStorage.setItem(KEY_WIDE, wide ? 1 : "");
+    $: html.classList.toggle("dark", darkMode);
 
 
     onMount(() => {
@@ -32,14 +40,28 @@
     }
 </style>
 
-<main class="container px-3 pt-4">
-    <div class="columns">
+<div class="mx-auto text-gray-800 dark:text-blue-100" class:max-w-screen-2xl="{!wide}">
+    <aside class="h-screen fixed w-64 z-10 p-3 bg-white dark:bg-gray-900 shadow-lg transition-all sm:ml-0"
+        class:-ml-72="{!openAside}">
         <Nav bind:activeSection="{activeSection}" sections="{sections}" />
-        <Content activeSection="{activeSection}" />
+    </aside>
+    <div class="fixed text-red-500 font-bold bottom-0 right-0 z-10 mr-10 mb-10 cursor-pointer sm:hidden"
+        on:click="{()=>openAside^=true}">
+        show
     </div>
-    <label class="checkbox">
-        <input type="checkbox" bind:checked="{darkMode}">
-        Dark
-    </label>
-    <Toast />
-</main>
+    <main class="sm:ml-64 p-3 transition-all">
+        <Content activeSection="{activeSection}" />
+    </main>
+    <footer class="sm:ml-64 p-3">
+        <label class="checkbox">
+            <input type="checkbox" bind:checked="{darkMode}">
+            Dark
+        </label>
+        <label class="checkbox">
+            <input type="checkbox" bind:checked="{wide}">
+            Wide
+        </label>
+    </footer>
+    <div class="bg-overlay fixed w-screen h-screen inset-0 sm:hidden" class:block="{openAside}"
+        class:hidden="{!openAside}"></div>
+</div>

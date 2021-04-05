@@ -3,19 +3,14 @@
     export let activeSection;
 </script>
 
-<div class="column is-narrow pl-0">
-    <h1 class="title is-3 has-background-primary has-text-white-bis">Title</h1>
-    <div class="menu">
-        <p class="menu-label">Menu</p>
-        <ul class="menu-list">
-            <li>
-                <ul>
-                    {#each sections as s (s)}
-                    <li><a href="{'javascript:void(0)'}" class:is-active="{activeSection===s}"
-                            on:click="{()=>activeSection=s}">{s}</a></li>
-                    {/each}
-                </ul>
-            </li>
-        </ul>
-    </div>
-</div>
+<h1 class="text-xl">Title</h1>
+<nav>
+    <ul>
+        {#each sections as s (s)}
+        <li class="p-1 py-2 rounded cursor-pointer" on:click="{()=>activeSection=s}" class:bg-blue-400="{activeSection===s}"
+            class:hover:bg-darker="{activeSection!==s}" class:dark:hover:bg-lighter="{activeSection!==s}">
+            {s}
+        </li>
+        {/each}
+    </ul>
+</nav>
