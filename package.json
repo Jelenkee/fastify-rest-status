@@ -6,8 +6,8 @@
   "scripts": {
     "test": "tap --no-coverage-report --jobs=1 -t 60 test.js",
     "demo": "npm run build:dev && node demo/",
-    "build": "NODE_ENV=production rollup -c",
-    "build:dev": "rollup -c"
+    "build": "NODE_ENV=production TAILWIND_MODE=build rollup -c",
+    "build:dev": "TAILWIND_MODE=build rollup -c"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
     "rollup-plugin-svelte": "^7.1.0",
     "rollup-plugin-terser": "^7.0.2",
     "svelte": "^3.37.0",
-    "tailwindcss": "^2.0.4",
+    "tailwindcss": "^2.1.1",
     "tap": "^14.11.0"
   }
 }

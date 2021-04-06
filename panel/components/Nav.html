@@ -3,11 +3,12 @@
     export let activeSection;
 </script>
 
-<h1 class="text-xl">Title</h1>
+<h1 class="text-2xl">Title</h1>
+<img class="max-h-28 mx-auto mb-5" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Google_Fuchsia_Logo.svg/480px-Google_Fuchsia_Logo.svg.png" alt="Logo">
 <nav>
     <ul>
         {#each sections as s (s)}
-        <li class="p-1 py-2 rounded cursor-pointer" on:click="{()=>activeSection=s}" class:bg-blue-400="{activeSection===s}"
+        <li class="p-1 py-2 mb-1 rounded-lg cursor-pointer" on:click="{()=>activeSection=s}" class:bg-blue-400="{activeSection===s}"
             class:hover:bg-darker="{activeSection!==s}" class:dark:hover:bg-lighter="{activeSection!==s}">
             {s}
         </li>

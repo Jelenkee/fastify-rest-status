@@ -1,7 +1,15 @@
 module.exports = {
-  purge: [
-    "./panel/**/*.html"
-  ],
+  mode: "jit",
+  purge: {
+    content: [
+      "./panel/**/*.html"
+    ],
+    options: {
+      defaultExtractor: content => (content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [])
+        .map(w => w.startsWith("class:") ? w.slice(6) : w)
+        .map(w => w.endsWith("=") ? w.slice(0, -1) : w)
+    }
+  },
   darkMode: "class",
   theme: {
     extend: {
