@@ -1,12 +1,24 @@
 <script>
-    import { slide } from "svelte/transition";
+    import { slide, fade, blur, fly, scale } from "svelte/transition";
     import { toasts } from "../toast.js"
 </script>
 
 <style>
-
+    p {
+        color: #0f0f0f;
+    }
 </style>
 
-{#each Object.values($toasts) as {clazz,text,id} (id) }
-<p transition:slide>{clazz},{text}</p>
-{/each}
+<div class="fixed z-20 max-w-threeQuarter sm:max-w-half top-6 right-0 trans1">
+    {#each Object.values($toasts) as {text,level,id} (id) }
+    <div class="flex justify-end">
+        <p class="p-4 bg-gray-200 border-gray-500 border-l-8 rounded-l-md mb-4 shadow-md text-lg" id="{id}"
+            class:bg-red-300="{level==='danger'}" class:border-red-600="{level==='danger'}"
+            class:bg-green-300="{level==='success'}" class:border-green-600="{level==='success'}"
+            class:bg-blue-300="{level==='info'}" class:border-blue-600="{level==='info'}"
+            in:fly="{{opacity:1,x:document.querySelector('#'+id).clientWidth||300}}" out:slide>
+            {text}
+        </p>
+    </div>
+    {/each}
+</div>

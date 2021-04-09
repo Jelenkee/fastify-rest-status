@@ -20,6 +20,11 @@ module.exports = {
         darker: "rgba(0, 0, 0, 0.1)",
         lighter: "rgba(255, 255, 255, 0.1)",
         overlay: "rgba(0, 0, 0, 0.4)",
+      },
+      maxWidth: {
+        oneQuarter: "25%",
+        half: "50%",
+        threeQuarter: "75%",
       }
     },
   },

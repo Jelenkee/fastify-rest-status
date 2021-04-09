@@ -2,10 +2,13 @@ import { writable } from "svelte/store";
 
 const toasts = writable({})
 
-function addToast(clazz, text, duration = 5000) {
-    const id = String(Math.random() + new Date().getTime());
+function addToast(text, level, duration = 5000) {
+    if (!level || typeof level !== "string") {
+        throw new Error("Invalid level '" + level + "'");
+    }
+    const id = "_" + String(Math.floor(Math.random() * 1e9) + new Date().getTime());
     toasts.update(o => {
-        o[id] = { clazz, text,id };
+        o[id] = { text, level, id };
         setTimeout(() => {
             toasts.update(o => {
                 delete o[id];

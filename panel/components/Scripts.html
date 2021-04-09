@@ -1,5 +1,6 @@
 <script>
     import { onMount } from "svelte";
+    import { addToast } from "../toast.js"
     const SCRIPT_KEY = "script";
     const SCRIPT_NAME_KEY = "scriptName";
 
@@ -56,9 +57,9 @@
         }
         const res = await fetch(BASE_PATH + "/script/save", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript, name: currentScriptName }) });
         if (res.ok) {
-            console.log(await res.json());
+            addToast((await res.json()).message, "success");
         } else {
-            console.error(await res.json());
+            addToast((await res.json()).error, "danger");
         }
         fetchScripts()
     }

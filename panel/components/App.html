@@ -1,6 +1,7 @@
 <script>
     import Nav from "./Nav.html";
     import Content from "./Content.html";
+    import Toast from "./Toast.html";
     import { onMount } from "svelte";
 
     const KEY_SECTION = "section";
@@ -40,42 +41,50 @@
     }
 
     .top.active {
-        transform: translateX(33%) translateY(-3%) rotate(45deg);
+        transform: rotate(45deg) translateY(25%);
+    }
+
+    .top {
+        transform-origin: center;
     }
 
     .middle.active {
-        opacity: 0;
+        transform: translateX(100%);
     }
 
     .bottom.active {
-        transform: translateX(-37%) translateY(33%) rotate(-45deg);
+        transform: rotate(-45deg) translateY(-25%);
+    }
+
+    .bottom {
+        transform-origin: center;
     }
 </style>
 
 <!--back #171421-->
 <!--blue #12488b-->
+<Toast/>
 <div class="mx-auto text-gray-800 dark:text-blue-100" class:max-w-screen-2xl="{!wide}">
-    <aside class="h-screen fixed w-64 z-10 p-3 bg-white dark:bg-gray-900 shadow-lg transition-all sm:ml-0"
+    <aside class="h-screen fixed w-64 lg:w-72 z-10 p-3 bg-white dark:bg-gray-900 shadow-lg trans1 sm:ml-0"
         class:-ml-72="{!openAside}">
         <Nav bind:activeSection="{activeSection}" sections="{sections}" />
     </aside>
-    <div class="fixed text-gray-800 bg-white rounded-full p-3 shadow-md bottom-0 right-0 z-10 mr-10 mb-10 cursor-pointer sm:hidden"
+    <div class="fixed text-gray-800 bg-white rounded-full p-2 shadow-md bottom-0 right-0 z-10 mr-10 mb-10 cursor-pointer sm:hidden"
         on:click="{()=>openAside^=true}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <!-- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /> -->
-            <path class="top transition-all" class:active="{openAside}" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 6h16" />
-            <path class="middle transition-all" class:active="{openAside}" stroke-linecap="round" stroke-linejoin="round"
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path class="top trans1" class:active="{openAside}" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M4 6h16" />
+            <path class="middle trans1" class:active="{openAside}" stroke-linecap="round" stroke-linejoin="round"
                 stroke-width="2" d="M4 12h16" />
-            <path class="bottom transition-all" class:active="{openAside}" stroke-linecap="round" stroke-linejoin="round"
+            <path class="bottom trans1" class:active="{openAside}" stroke-linecap="round" stroke-linejoin="round"
                 stroke-width="2" d="M4 18h16" />
         </svg>
     </div>
     <div class="flex flex-col justify-between h-screen">
-        <main class="sm:ml-64 p-3 transition-all">
+        <main class="sm:ml-64 lg:ml-72 p-3 trans1">
             <Content activeSection="{activeSection}" />
         </main>
-        <footer class="sm:ml-64 p-3 bg-purple-500">
+        <footer class="sm:ml-64 lg:ml-72 p-3 trans1 bg-purple-500">
             <label class="checkbox">
                 <input type="checkbox" bind:checked="{darkMode}">
                 Dark
@@ -83,9 +92,6 @@
             <label class="checkbox">
                 <input type="checkbox" bind:checked="{wide}">
                 Wide
-            </label>
-            <label class="inline-flex items-center mt-3">
-                <input type="checkbox" class="form-checkbox h-5 w-5 text-green-600" checked><span class="ml-2 text-gray-700">label</span>
             </label>
         </footer>
     </div>
