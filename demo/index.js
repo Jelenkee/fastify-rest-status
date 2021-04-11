@@ -85,7 +85,10 @@ fastify.register(plugin, {
             }
         }
     ],
-    panel: true,
+    panel: {
+        title: "King Hannes",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Succs-icon.png"
+    },
     script: {
         params: {
             store: ["minus", "times"],

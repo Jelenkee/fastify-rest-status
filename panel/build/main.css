@@ -582,6 +582,9 @@ video {
 .mb-10 {
 	margin-bottom: 2.5rem;
 }
+.mb-3 {
+	margin-bottom: 0.75rem;
+}
 .mb-5 {
 	margin-bottom: 1.25rem;
 }
@@ -732,20 +735,26 @@ video {
 	padding-top: 0.5rem;
 	padding-bottom: 0.5rem;
 }
-.pt-6 {
-	padding-top: 1.5rem;
+.pt-8 {
+	padding-top: 2rem;
 }
-.text-xl {
-	font-size: 1.25rem;
-	line-height: 1.75rem;
+.font-sans {
+	font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 .text-2xl {
 	font-size: 1.5rem;
 	line-height: 2rem;
 }
+.text-3xl {
+	font-size: 1.875rem;
+	line-height: 2.25rem;
+}
 .text-lg {
 	font-size: 1.125rem;
 	line-height: 1.75rem;
+}
+.font-semibold {
+	font-weight: 600;
 }
 .text-gray-800 {
 	--tw-text-opacity: 1;
@@ -766,6 +775,28 @@ video {
 	transition-duration: 150ms;
 	transition-duration: 300ms;
     transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, margin, padding, width;
+}
+
+.button {
+	cursor: pointer;
+	white-space: nowrap;
+	border-radius: 0.25rem;
+	border-width: 1px;
+	--tw-border-opacity: 1;
+	border-color: rgba(209, 213, 219, var(--tw-border-opacity));
+	--tw-bg-opacity: 1;
+	background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
+	padding-left: 1rem;
+	padding-right: 1rem;
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+	--tw-text-opacity: 1;
+	color: rgba(0, 0, 0, var(--tw-text-opacity));
+}
+
+.button:hover {
+	--tw-bg-opacity: 1;
+	background-color: rgba(243, 244, 246, var(--tw-bg-opacity));
 }
 
 .hover\:bg-darker:hover {

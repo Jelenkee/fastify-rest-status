@@ -3,12 +3,14 @@
     import Content from "./Content.html";
     import Toast from "./Toast.html";
     import { onMount } from "svelte";
+    import { fetchConfig } from "../config";
 
     const KEY_SECTION = "section";
     const KEY_DARK = "dark";
     const KEY_WIDE = "wide";
     const sections = ["Application", "Action", "Configuration", "System", "Monitor"];
     const html = document.body.parentNode;
+
     let darkMode = Boolean(localStorage.getItem(KEY_DARK));
     let wide = Boolean(localStorage.getItem(KEY_WIDE));
     let activeSection = (() => {
@@ -25,7 +27,8 @@
     $: html.classList.toggle("dark", darkMode);
 
 
-    onMount(() => {
+    onMount(async () => {
+        await fetchConfig();
     });
 
 </script>
@@ -63,8 +66,8 @@
 
 <!--back #171421-->
 <!--blue #12488b-->
-<Toast/>
-<div class="mx-auto text-gray-800 dark:text-blue-100" class:max-w-screen-2xl="{!wide}">
+<Toast />
+<div class="mx-auto text-gray-800 dark:text-blue-100 font-sans" class:max-w-screen-2xl="{!wide}">
     <aside class="h-screen fixed w-64 lg:w-72 z-10 p-3 bg-white dark:bg-gray-900 shadow-lg trans1 sm:ml-0"
         class:-ml-72="{!openAside}">
         <Nav bind:activeSection="{activeSection}" sections="{sections}" />

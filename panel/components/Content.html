@@ -10,7 +10,6 @@
 
     onMount(() => {
         fetchConfig();
-
     });
 
     async function fetchConfig() {
@@ -44,7 +43,10 @@
     }
 </script>
 
-<h2 class="text-xl pt-6">{activeSection}</h2>
+{#if activeSection}
+<h2 class="text-2xl pt-8">{activeSection}</h2>
+{/if}
+
 {#if activeSection === "Application"}
 <Scripts />
 {:else if activeSection === "Action"}
