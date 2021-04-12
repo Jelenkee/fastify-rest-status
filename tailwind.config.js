@@ -25,7 +25,10 @@ module.exports = {
         oneQuarter: "25%",
         half: "50%",
         threeQuarter: "75%",
-      }
+      },
+      fontFamily: {
+        mono: "Ubuntu Mono"
+      },
     },
   },
   variants: {

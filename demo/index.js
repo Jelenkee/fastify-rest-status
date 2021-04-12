@@ -45,7 +45,7 @@ fastify.register(plugin, {
             } else if (k === "array") {
                 return v.split(",").map(s => s.trim());
             } else if (k === "json") {
-                return JSON.parse(k);
+                return JSON.parse(v);
             } else {
                 return v;
             }

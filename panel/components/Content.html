@@ -1,50 +1,14 @@
 <script>
     import { onMount } from "svelte";
-    import { slide } from "svelte/transition";
     import Scripts from "./Scripts.html";
     import Monitor from "./Monitor.html";
+    import Config from "./Config.html";
 
     export let activeSection;
-    let configEntries = [];
-    let configSearchterm = "";
-
-    onMount(() => {
-        fetchConfig();
-    });
-
-    async function fetchConfig() {
-        const res = await fetch(BASE_PATH + "/config");
-        if (res.ok) {
-            const config = await res.json();
-            configEntries = Object.entries(config).sort((a, b) => a[0].localeCompare(b[0])).map(e => { e[1].value = valueToString(e[1].value); return e; });
-        } else {
-            console.error(await res.json());
-        }
-    }
-
-    async function saveConfig(key, value) {
-        const res = await fetch(BASE_PATH + "/config/" + key, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ value }) });
-        if (res.ok) {
-            console.log(await res.json());
-        } else {
-            console.error(await res.json());
-        }
-    }
-
-    function valueToString(val) {
-        const type = typeof val;
-        if (Array.isArray(val)) {
-            return val.join(",");
-        } else if (typeof val === "object") {
-            return JSON.stringify(val);
-        } else {
-            return String(val);
-        }
-    }
 </script>
 
 {#if activeSection}
-<h2 class="text-2xl pt-8">{activeSection}</h2>
+<h2 class="text-2xl pt-8 pb-4">{activeSection}</h2>
 {/if}
 
 {#if activeSection === "Application"}
@@ -52,46 +16,7 @@
 {:else if activeSection === "Action"}
 <p>Marvel</p>
 {:else if activeSection === "Configuration"}
-<div><button class="button is-info is-light" on:click="{fetchConfig}">Refresh Config</button></div>
-<input type="text" class="input" placeholder="Search" bind:value="{configSearchterm}">
-{JSON.stringify(configEntries)}
-{#each configEntries as [k,v] (k)}
-{#if !configSearchterm || k.includes(configSearchterm)}
-<div class="field is-horizontal">
-    <div class="field-label is-normal">
-        <label class="label">{k}</label>
-    </div>
-    <div class="field-body">
-        <div class="field">
-            <div class="control">
-                {#if v.values && v.values.length && v.values.length>1}
-                <div class="select">
-                    <select bind:value="{v.value}">
-                        {#if !v.values.includes(v.value) }
-                        <option selected>{v.value}</option>
-                        {/if}
-                        {#each v.values as vv }
-                        <option>{vv}</option>
-                        {/each}
-                    </select>
-                </div>
-                {:else}
-                <input type="text" class="input" bind:value="{v.value}">
-                {/if}
-            </div>
-            {#if v.description}
-            <p class="help">{v.description}</p>
-            {/if}
-        </div>
-        <div class="field">
-            <div class="control">
-                <button class="button" on:click="{()=>saveConfig(k,v.value)}">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
-{/if}
-{/each}
+<Config />
 {:else if activeSection === "System"}
 <p>Processor</p>
 {:else if activeSection === "Monitor"}

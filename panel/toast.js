@@ -3,6 +3,9 @@ import { writable } from "svelte/store";
 const toasts = writable({})
 
 function addToast(text, level, duration = 5000) {
+    if (!text) {
+        return;
+    }
     if (!level || typeof level !== "string") {
         throw new Error("Invalid level '" + level + "'");
     }

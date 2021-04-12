@@ -500,7 +500,7 @@ pre,
 code,
 kbd,
 samp {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: Ubuntu Mono;
 }
 
 /**
@@ -591,9 +591,6 @@ video {
 .mb-1 {
 	margin-bottom: 0.25rem;
 }
-.mt-2 {
-	margin-top: 0.5rem;
-}
 .mb-4 {
 	margin-bottom: 1rem;
 }
@@ -615,6 +612,9 @@ video {
 .max-h-28 {
 	max-height: 7rem;
 }
+.max-h-64 {
+	max-height: 16rem;
+}
 .w-64 {
 	width: 16rem;
 }
@@ -624,11 +624,26 @@ video {
 .w-screen {
 	width: 100vw;
 }
+.w-full {
+	width: 100%;
+}
+.w-1\/3 {
+	width: 33.333333%;
+}
+.min-w-0 {
+	min-width: 0px;
+}
 .max-w-screen-2xl {
 	max-width: 1536px;
 }
 .max-w-threeQuarter {
 	max-width: 75%;
+}
+.flex-auto {
+	flex: 1 1 auto;
+}
+.flex-none {
+	flex: none;
 }
 .transform {
 	--tw-translate-x: 0;
@@ -651,6 +666,9 @@ video {
 }
 .justify-end {
 	justify-content: flex-end;
+}
+.overflow-y-auto {
+	overflow-y: auto;
 }
 .rounded-full {
 	border-radius: 9999px;
@@ -703,6 +721,9 @@ video {
 	--tw-bg-opacity: 1;
 	background-color: rgba(96, 165, 250, var(--tw-bg-opacity));
 }
+.bg-darker {
+	background-color: rgba(0, 0, 0, 0.1);
+}
 .bg-gray-200 {
 	--tw-bg-opacity: 1;
 	background-color: rgba(229, 231, 235, var(--tw-bg-opacity));
@@ -738,8 +759,17 @@ video {
 .pt-8 {
 	padding-top: 2rem;
 }
+.pb-4 {
+	padding-bottom: 1rem;
+}
+.pr-4 {
+	padding-right: 1rem;
+}
 .font-sans {
 	font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+.font-mono {
+	font-family: Ubuntu Mono;
 }
 .text-2xl {
 	font-size: 1.5rem;
@@ -748,6 +778,10 @@ video {
 .text-3xl {
 	font-size: 1.875rem;
 	line-height: 2.25rem;
+}
+.text-xl {
+	font-size: 1.25rem;
+	line-height: 1.75rem;
 }
 .text-lg {
 	font-size: 1.125rem;
@@ -774,7 +808,7 @@ video {
 	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 	transition-duration: 150ms;
 	transition-duration: 300ms;
-    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, margin, padding, width;
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, margin, padding, width, max-width;
 }
 
 .button {
@@ -838,6 +872,13 @@ video {
 
 	.sm\:max-w-half {
 		max-width: 50%;
+	}
+}
+
+@media (min-width: 768px) {
+
+	.md\:w-1\/4 {
+		width: 25%;
 	}
 }
 

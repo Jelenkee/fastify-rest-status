@@ -1,6 +1,8 @@
 <script>
     import { onMount } from "svelte";
-    import { addToast } from "../toast.js"
+    import { slide } from "svelte/transition";
+    import { addToast } from "../toast.js";
+    import { doFetch } from "../utils.js";
     const SCRIPT_KEY = "script";
     const SCRIPT_NAME_KEY = "scriptName";
 
@@ -21,11 +23,10 @@
     });
 
     async function fetchScripts() {
-        const res = await fetch(BASE_PATH + "/script/list");
-        if (res.ok) {
-            scripts = await res.json();
-        } else {
-            console.error(await res.json());
+        try {
+            scripts = await (await doFetch(BASE_PATH + "/script/list")).json()
+        } catch (error) {
+            scripts = [];
         }
     }
 
@@ -35,12 +36,7 @@
         }
         scriptExecuting = true;
         try {
-            const res = await fetch(BASE_PATH + "/script/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript }) });
-            if (res.ok) {
-                scriptResult = await res.json();
-            } else {
-                scriptResult = await res.json();
-            }
+            scriptResult = await (await fetch(BASE_PATH + "/script/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript }) })).json();
         } finally {
             scriptExecuting = false;
         }
@@ -55,23 +51,27 @@
             scriptError = true;
             return;
         }
-        const res = await fetch(BASE_PATH + "/script/save", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript, name: currentScriptName }) });
+        const res = await doFetch(BASE_PATH + "/script/save", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript, name: currentScriptName }) });
         if (res.ok) {
             addToast((await res.json()).message, "success");
-        } else {
-            addToast((await res.json()).error, "danger");
+        }
+        fetchScripts()
+    }
+
+    async function deleteScript() {
+        if (!currentScriptName) {
+            scriptNameError = true;
+            return
+        }
+        const res = await doFetch(BASE_PATH + "/script/delete/" + currentScriptName, { method: "DELETE", headers: { "content-type": "application/json" } });
+        if (res.ok) {
+            addToast((await res.json()).message, "success");
         }
         fetchScripts()
     }
 </script>
 
 <style>
-    .list {
-        max-height: 500px;
-        background-color: rgba(0, 0, 0, 0.1);
-        overflow-y: auto;
-    }
-
     .mono {
         font-family: 'Ubuntu Mono', sans-serif;
     }
@@ -83,36 +83,15 @@
     }
 </style>
 
-<h5 class="title is-5">Script</h5>
-<div class="columns is-mobile">
-    <div class="column is-three-quarters">
-        <textarea rows="10" class="textarea is-small mono" class:is-danger="{scriptError}" bind:value="{currentScript}"
+<h5 class="text-xl">Script</h5>
+<div class="flex">
+    <div class="min-w-0 flex-auto pr-4">
+        <textarea wrap="off" rows="10" class="mono w-full font-mono" class:is-danger="{scriptError}" bind:value="{currentScript}"
             on:keyup="{e=>e.ctrlKey&&e.key==='Enter'&&runScript()}" on:input="{()=>scriptError=false}"></textarea>
-        <div class="level is-mobile mt-2">
-            <div class="level-left">
-                <div class="level-item">
-                    <div class="field has-addons">
-                        <div class="control">
-                            <input type="text" class="input" bind:value="{currentScriptName}" placeholder="Name"
-                                class:is-danger="{scriptNameError}" on:input="{()=>scriptNameError=false}" size="12">
-                        </div>
-                        <div class="control">
-                            <button class="button" on:click="{saveScript}">Save</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="level-right">
-                <div class="level-item">
-                    <div class="field">
-                        <div class="control">
-                            <button class="button" on:click="{runScript}"
-                                class:is-loading="{scriptExecuting}">Run</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <input type="text" class="input" bind:value="{currentScriptName}" placeholder="Name"
+            class:is-danger="{scriptNameError}" on:input="{()=>scriptNameError=false}" size="12">
+        <button class="button" on:click="{saveScript}">Save</button>
+        <button class="button" on:click="{runScript}" class:is-loading="{scriptExecuting}">Run</button>
         {#if scriptResult}
         <div class="result">
             <code>R: {scriptResult.result}</code>
@@ -121,13 +100,14 @@
         </div>
         {/if}
     </div>
-    <div class="column list">
-        <input type="text" class="input is-small" bind:value="{searchTerm}" placeholder="Search">
+    <div class="max-h-64 bg-darker overflow-y-auto min-w-0 flex-none w-1/3 md:w-1/4">
+        <input type="text" class="w-full" bind:value="{searchTerm}" placeholder="Search">
         {#each scripts as {name,script} (name) }
         {#if !searchTerm || name.toLowerCase().includes(searchTerm.toLowerCase())}
-        <div class=" p-1 hover:bg-darker dark:hover:bg-lighter cursor-pointer" on:click="{()=>{currentScript=script;currentScriptName=name}}">
+        <div class="p-1 hover:bg-darker dark:hover:bg-lighter cursor-pointer" transition:slide
+            on:click="{()=>{currentScript=script;currentScriptName=name}}">
             <p><b>{name}</b></p>
-            <p class="help mono ellipsis">{script}</p>
+            <p class="help mono font-mono ellipsis">{script}</p>
         </div>
         {/if}
         {/each}
