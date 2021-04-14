@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "chart.js": "^2.9.4",
+    "codemirror": "^5.60.0",
     "collections": "^5.1.12",
     "cron": "^1.8.2",
     "fastify-plugin": "^3.0.0",

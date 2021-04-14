@@ -86,8 +86,9 @@
 <h5 class="text-xl">Script</h5>
 <div class="flex">
     <div class="min-w-0 flex-auto pr-4">
-        <textarea wrap="off" rows="10" class="mono w-full font-mono" class:is-danger="{scriptError}" bind:value="{currentScript}"
-            on:keyup="{e=>e.ctrlKey&&e.key==='Enter'&&runScript()}" on:input="{()=>scriptError=false}"></textarea>
+        <textarea wrap="off" rows="10" class="mono w-full font-mono" class:is-danger="{scriptError}"
+            bind:value="{currentScript}" on:keyup="{e=>e.ctrlKey&&e.key==='Enter'&&runScript()}"
+            on:input="{()=>scriptError=false}"></textarea>
         <input type="text" class="input" bind:value="{currentScriptName}" placeholder="Name"
             class:is-danger="{scriptNameError}" on:input="{()=>scriptNameError=false}" size="12">
         <button class="button" on:click="{saveScript}">Save</button>
@@ -104,7 +105,7 @@
         <input type="text" class="w-full" bind:value="{searchTerm}" placeholder="Search">
         {#each scripts as {name,script} (name) }
         {#if !searchTerm || name.toLowerCase().includes(searchTerm.toLowerCase())}
-        <div class="p-1 hover:bg-darker dark:hover:bg-lighter cursor-pointer" transition:slide
+        <div class="p-1 hover:bg-darker dark:hover:bg-lighter cursor-pointer"
             on:click="{()=>{currentScript=script;currentScriptName=name}}">
             <p><b>{name}</b></p>
             <p class="help mono font-mono ellipsis">{script}</p>

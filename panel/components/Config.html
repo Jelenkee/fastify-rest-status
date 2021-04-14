@@ -19,7 +19,7 @@
 
     async function saveConfig(key, value) {
         const res = await doFetch(BASE_PATH + "/config/" + key, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ value }) });
-        addToast((await res.json()).message, "success");
+        addToast((await res.json()).message, "info");
     }
 
     function valueToString(val) {

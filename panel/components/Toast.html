@@ -1,6 +1,19 @@
 <script>
     import { slide, fly } from "svelte/transition";
     import { toasts } from "../toast.js"
+
+    function classes(level) {
+        switch (level) {
+            case "danger":
+                return "bg-red-300 border-red-600";
+            case "success":
+                return "bg-green-300 border-green-600";
+            case "info":
+                return "bg-blue-300 border-blue-600";
+            default:
+                return "bg-gray-200 border-gray-500";
+        }
+    }
 </script>
 
 <style>
@@ -11,11 +24,8 @@
 
 <div class="fixed z-20 max-w-threeQuarter sm:max-w-half top-6 right-0 trans1">
     {#each Object.values($toasts) as {text,level,id} (id) }
-    <div class="flex justify-end">
-        <div class="p-4 bg-gray-200 border-gray-500 border-l-8 rounded-l-md mb-4 shadow-md text-lg" id="{id}"
-            class:bg-red-300="{level==='danger'}" class:border-red-600="{level==='danger'}"
-            class:bg-green-300="{level==='success'}" class:border-green-600="{level==='success'}"
-            class:bg-blue-300="{level==='info'}" class:border-blue-600="{level==='info'}"
+    <div class="flex justify-end mb-4">
+        <div class="{'p-4 border-l-8 rounded-l-md shadow-md text-lg '+classes(level)}" id="{id}"
             in:fly="{{opacity:1,x:document.querySelector('#'+id).clientWidth||300}}" out:slide>
             {text}
         </div>

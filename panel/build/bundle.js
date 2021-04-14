@@ -41,6 +41,9 @@
     function component_subscribe(component, store, callback) {
         component.$$.on_destroy.push(subscribe(store, callback));
     }
+    function null_to_empty(value) {
+        return value == null ? '' : value;
+    }
 
     const is_client = typeof window !== 'undefined';
     let now = is_client
@@ -458,111 +461,6 @@
             }
         };
     }
-    function create_bidirectional_transition(node, fn, params, intro) {
-        let config = fn(node, params);
-        let t = intro ? 0 : 1;
-        let running_program = null;
-        let pending_program = null;
-        let animation_name = null;
-        function clear_animation() {
-            if (animation_name)
-                delete_rule(node, animation_name);
-        }
-        function init(program, duration) {
-            const d = program.b - t;
-            duration *= Math.abs(d);
-            return {
-                a: t,
-                b: program.b,
-                d,
-                duration,
-                start: program.start,
-                end: program.start + duration,
-                group: program.group
-            };
-        }
-        function go(b) {
-            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
-            const program = {
-                start: now() + delay,
-                b
-            };
-            if (!b) {
-                // @ts-ignore todo: improve typings
-                program.group = outros;
-                outros.r += 1;
-            }
-            if (running_program || pending_program) {
-                pending_program = program;
-            }
-            else {
-                // if this is an intro, and there's a delay, we need to do
-                // an initial tick and/or apply CSS animation immediately
-                if (css) {
-                    clear_animation();
-                    animation_name = create_rule(node, t, b, duration, delay, easing, css);
-                }
-                if (b)
-                    tick(0, 1);
-                running_program = init(program, duration);
-                add_render_callback(() => dispatch(node, b, 'start'));
-                loop(now => {
-                    if (pending_program && now > pending_program.start) {
-                        running_program = init(pending_program, duration);
-                        pending_program = null;
-                        dispatch(node, running_program.b, 'start');
-                        if (css) {
-                            clear_animation();
-                            animation_name = create_rule(node, t, running_program.b, running_program.duration, 0, easing, config.css);
-                        }
-                    }
-                    if (running_program) {
-                        if (now >= running_program.end) {
-                            tick(t = running_program.b, 1 - t);
-                            dispatch(node, running_program.b, 'end');
-                            if (!pending_program) {
-                                // we're done
-                                if (running_program.b) {
-                                    // intro — we can tidy up immediately
-                                    clear_animation();
-                                }
-                                else {
-                                    // outro — needs to be coordinated
-                                    if (!--running_program.group.r)
-                                        run_all(running_program.group.c);
-                                }
-                            }
-                            running_program = null;
-                        }
-                        else if (now >= running_program.start) {
-                            const p = now - running_program.start;
-                            t = running_program.a + running_program.d * easing(p / running_program.duration);
-                            tick(t, 1 - t);
-                        }
-                    }
-                    return !!(running_program || pending_program);
-                });
-            }
-        }
-        return {
-            run(b) {
-                if (is_function(config)) {
-                    wait().then(() => {
-                        // @ts-ignore
-                        config = config();
-                        go(b);
-                    });
-                }
-                else {
-                    go(b);
-                }
-            },
-            end() {
-                clear_animation();
-                running_program = pending_program = null;
-            }
-        };
-    }
 
     const globals = (typeof window !== 'undefined'
         ? window
@@ -939,10 +837,7 @@
         if (!text) {
             return;
         }
-        if (!level || typeof level !== "string") {
-            throw new Error("Invalid level '" + level + "'");
-        }
-        const id = "_" + String(Math.floor(Math.random() * 1e9) + new Date().getTime());
+        const id = "_" + Math.floor(Math.random() * 1e4) + new Date().getMilliseconds();
         toasts.update(o => {
             o[id] = { text, level, id };
             setTimeout(() => {
@@ -1372,7 +1267,7 @@
     	return child_ctx;
     }
 
-    // (95:8) {#if scriptResult}
+    // (96:8) {#if scriptResult}
     function create_if_block_1$2(ctx) {
     	let div;
     	let code0;
@@ -1402,11 +1297,11 @@
     			t5 = space();
     			pre = element("pre");
     			t6 = text(t6_value);
-    			add_location(code0, file$5, 96, 12, 3298);
-    			add_location(code1, file$5, 97, 12, 3348);
-    			add_location(pre, file$5, 98, 12, 3408);
+    			add_location(code0, file$5, 97, 12, 3310);
+    			add_location(code1, file$5, 98, 12, 3360);
+    			add_location(pre, file$5, 99, 12, 3420);
     			attr_dev(div, "class", "result");
-    			add_location(div, file$5, 95, 8, 3265);
+    			add_location(div, file$5, 96, 8, 3277);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -1435,14 +1330,14 @@
     		block,
     		id: create_if_block_1$2.name,
     		type: "if",
-    		source: "(95:8) {#if scriptResult}",
+    		source: "(96:8) {#if scriptResult}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (106:8) {#if !searchTerm || name.toLowerCase().includes(searchTerm.toLowerCase())}
+    // (107:8) {#if !searchTerm || name.toLowerCase().includes(searchTerm.toLowerCase())}
     function create_if_block$2(ctx) {
     	let div;
     	let p0;
@@ -1454,8 +1349,6 @@
     	let t2_value = /*script*/ ctx[20] + "";
     	let t2;
     	let t3;
-    	let div_transition;
-    	let current;
     	let mounted;
     	let dispose;
 
@@ -1473,12 +1366,12 @@
     			p1 = element("p");
     			t2 = text(t2_value);
     			t3 = space();
-    			add_location(b, file$5, 108, 15, 4025);
-    			add_location(p0, file$5, 108, 12, 4022);
+    			add_location(b, file$5, 109, 15, 4020);
+    			add_location(p0, file$5, 109, 12, 4017);
     			attr_dev(p1, "class", "help mono font-mono ellipsis svelte-1ajpo9f");
-    			add_location(p1, file$5, 109, 12, 4055);
+    			add_location(p1, file$5, 110, 12, 4050);
     			attr_dev(div, "class", "p-1 hover:bg-darker dark:hover:bg-lighter cursor-pointer");
-    			add_location(div, file$5, 106, 8, 3847);
+    			add_location(div, file$5, 107, 8, 3859);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -1489,7 +1382,6 @@
     			append_dev(div, p1);
     			append_dev(p1, t2);
     			append_dev(div, t3);
-    			current = true;
 
     			if (!mounted) {
     				dispose = listen_dev(div, "click", click_handler, false, false, false);
@@ -1498,27 +1390,11 @@
     		},
     		p: function update(new_ctx, dirty) {
     			ctx = new_ctx;
-    			if ((!current || dirty & /*scripts*/ 4) && t0_value !== (t0_value = /*name*/ ctx[19] + "")) set_data_dev(t0, t0_value);
-    			if ((!current || dirty & /*scripts*/ 4) && t2_value !== (t2_value = /*script*/ ctx[20] + "")) set_data_dev(t2, t2_value);
-    		},
-    		i: function intro(local) {
-    			if (current) return;
-
-    			add_render_callback(() => {
-    				if (!div_transition) div_transition = create_bidirectional_transition(div, slide, {}, true);
-    				div_transition.run(1);
-    			});
-
-    			current = true;
-    		},
-    		o: function outro(local) {
-    			if (!div_transition) div_transition = create_bidirectional_transition(div, slide, {}, false);
-    			div_transition.run(0);
-    			current = false;
+    			if (dirty & /*scripts*/ 4 && t0_value !== (t0_value = /*name*/ ctx[19] + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*scripts*/ 4 && t2_value !== (t2_value = /*script*/ ctx[20] + "")) set_data_dev(t2, t2_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
-    			if (detaching && div_transition) div_transition.end();
     			mounted = false;
     			dispose();
     		}
@@ -1528,19 +1404,18 @@
     		block,
     		id: create_if_block$2.name,
     		type: "if",
-    		source: "(106:8) {#if !searchTerm || name.toLowerCase().includes(searchTerm.toLowerCase())}",
+    		source: "(107:8) {#if !searchTerm || name.toLowerCase().includes(searchTerm.toLowerCase())}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (105:8) {#each scripts as {name,script}
+    // (106:8) {#each scripts as {name,script}
     function create_each_block$2(key_1, ctx) {
     	let first;
     	let show_if = !/*searchTerm*/ ctx[7] || /*name*/ ctx[19].toLowerCase().includes(/*searchTerm*/ ctx[7].toLowerCase());
     	let if_block_anchor;
-    	let current;
     	let if_block = show_if && create_if_block$2(ctx);
 
     	const block = {
@@ -1556,7 +1431,6 @@
     			insert_dev(target, first, anchor);
     			if (if_block) if_block.m(target, anchor);
     			insert_dev(target, if_block_anchor, anchor);
-    			current = true;
     		},
     		p: function update(new_ctx, dirty) {
     			ctx = new_ctx;
@@ -1565,34 +1439,15 @@
     			if (show_if) {
     				if (if_block) {
     					if_block.p(ctx, dirty);
-
-    					if (dirty & /*searchTerm, scripts*/ 132) {
-    						transition_in(if_block, 1);
-    					}
     				} else {
     					if_block = create_if_block$2(ctx);
     					if_block.c();
-    					transition_in(if_block, 1);
     					if_block.m(if_block_anchor.parentNode, if_block_anchor);
     				}
     			} else if (if_block) {
-    				group_outros();
-
-    				transition_out(if_block, 1, 1, () => {
-    					if_block = null;
-    				});
-
-    				check_outros();
+    				if_block.d(1);
+    				if_block = null;
     			}
-    		},
-    		i: function intro(local) {
-    			if (current) return;
-    			transition_in(if_block);
-    			current = true;
-    		},
-    		o: function outro(local) {
-    			transition_out(if_block);
-    			current = false;
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(first);
@@ -1605,7 +1460,7 @@
     		block,
     		id: create_each_block$2.name,
     		type: "each",
-    		source: "(105:8) {#each scripts as {name,script}",
+    		source: "(106:8) {#each scripts as {name,script}",
     		ctx
     	});
 
@@ -1631,7 +1486,6 @@
     	let t9;
     	let each_blocks = [];
     	let each_1_lookup = new Map();
-    	let current;
     	let mounted;
     	let dispose;
     	let if_block = /*scriptResult*/ ctx[5] && create_if_block_1$2(ctx);
@@ -1685,20 +1539,20 @@
     			attr_dev(input0, "placeholder", "Name");
     			attr_dev(input0, "size", "12");
     			toggle_class(input0, "is-danger", /*scriptNameError*/ ctx[3]);
-    			add_location(input0, file$5, 90, 8, 2874);
+    			add_location(input0, file$5, 91, 8, 2886);
     			attr_dev(button0, "class", "button");
-    			add_location(button0, file$5, 92, 8, 3065);
+    			add_location(button0, file$5, 93, 8, 3077);
     			attr_dev(button1, "class", "button");
     			toggle_class(button1, "is-loading", /*scriptExecuting*/ ctx[6]);
-    			add_location(button1, file$5, 93, 8, 3134);
+    			add_location(button1, file$5, 94, 8, 3146);
     			attr_dev(div0, "class", "min-w-0 flex-auto pr-4");
     			add_location(div0, file$5, 87, 4, 2584);
     			attr_dev(input1, "type", "text");
     			attr_dev(input1, "class", "w-full");
     			attr_dev(input1, "placeholder", "Search");
-    			add_location(input1, file$5, 103, 8, 3625);
+    			add_location(input1, file$5, 104, 8, 3637);
     			attr_dev(div1, "class", "max-h-64 bg-darker overflow-y-auto min-w-0 flex-none w-1/3 md:w-1/4");
-    			add_location(div1, file$5, 102, 4, 3535);
+    			add_location(div1, file$5, 103, 4, 3547);
     			attr_dev(div2, "class", "flex");
     			add_location(div2, file$5, 86, 0, 2561);
     		},
@@ -1730,8 +1584,6 @@
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].m(div1, null);
     			}
-
-    			current = true;
 
     			if (!mounted) {
     				dispose = [
@@ -1789,28 +1641,12 @@
     			if (dirty & /*currentScript, scripts, currentScriptName, searchTerm*/ 135) {
     				each_value = /*scripts*/ ctx[2];
     				validate_each_argument(each_value);
-    				group_outros();
     				validate_each_keys(ctx, each_value, get_each_context$2, get_key);
-    				each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value, each_1_lookup, div1, outro_and_destroy_block, create_each_block$2, null, get_each_context$2);
-    				check_outros();
+    				each_blocks = update_keyed_each(each_blocks, dirty, get_key, 1, ctx, each_value, each_1_lookup, div1, destroy_block, create_each_block$2, null, get_each_context$2);
     			}
     		},
-    		i: function intro(local) {
-    			if (current) return;
-
-    			for (let i = 0; i < each_value.length; i += 1) {
-    				transition_in(each_blocks[i]);
-    			}
-
-    			current = true;
-    		},
-    		o: function outro(local) {
-    			for (let i = 0; i < each_blocks.length; i += 1) {
-    				transition_out(each_blocks[i]);
-    			}
-
-    			current = false;
-    		},
+    		i: noop,
+    		o: noop,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(h5);
     			if (detaching) detach_dev(t1);
@@ -2360,13 +2196,13 @@
     			button = element("button");
     			button.textContent = "Save";
     			t5 = space();
-    			add_location(div0, file$3, 41, 4, 1434);
+    			add_location(div0, file$3, 41, 4, 1431);
     			attr_dev(div1, "class", "");
-    			add_location(div1, file$3, 42, 4, 1455);
+    			add_location(div1, file$3, 42, 4, 1452);
     			attr_dev(button, "class", "button");
-    			add_location(button, file$3, 61, 4, 2044);
+    			add_location(button, file$3, 61, 4, 2041);
     			attr_dev(div2, "class", "");
-    			add_location(div2, file$3, 40, 0, 1415);
+    			add_location(div2, file$3, 40, 0, 1412);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div2, anchor);
@@ -2450,7 +2286,7 @@
     			input = element("input");
     			attr_dev(input, "type", "text");
     			attr_dev(input, "class", "input");
-    			add_location(input, file$3, 55, 8, 1888);
+    			add_location(input, file$3, 55, 8, 1885);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, input, anchor);
@@ -2519,9 +2355,9 @@
     			}
 
     			if (/*v*/ ctx[9].value === void 0) add_render_callback(select_change_handler);
-    			add_location(select, file$3, 45, 12, 1568);
+    			add_location(select, file$3, 45, 12, 1565);
     			attr_dev(div, "class", "");
-    			add_location(div, file$3, 44, 8, 1541);
+    			add_location(div, file$3, 44, 8, 1538);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -2619,7 +2455,7 @@
     			option.selected = true;
     			option.__value = option_value_value = /*v*/ ctx[9].value;
     			option.value = option.__value;
-    			add_location(option, file$3, 47, 16, 1667);
+    			add_location(option, file$3, 47, 16, 1664);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, option, anchor);
@@ -2662,7 +2498,7 @@
     			t = text(t_value);
     			option.__value = option_value_value = /*vv*/ ctx[12];
     			option.value = option.__value;
-    			add_location(option, file$3, 50, 16, 1781);
+    			add_location(option, file$3, 50, 16, 1778);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, option, anchor);
@@ -2703,7 +2539,7 @@
     			p = element("p");
     			t = text(t_value);
     			attr_dev(p, "class", "");
-    			add_location(p, file$3, 59, 4, 1998);
+    			add_location(p, file$3, 59, 4, 1995);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -2821,12 +2657,12 @@
 
     			each_1_anchor = empty();
     			attr_dev(button, "class", "button");
-    			add_location(button, file$3, 36, 5, 1164);
-    			add_location(div, file$3, 36, 0, 1159);
+    			add_location(button, file$3, 36, 5, 1161);
+    			add_location(div, file$3, 36, 0, 1156);
     			attr_dev(input, "type", "text");
     			attr_dev(input, "class", "");
     			attr_dev(input, "placeholder", "Search");
-    			add_location(input, file$3, 37, 0, 1242);
+    			add_location(input, file$3, 37, 0, 1239);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -2933,7 +2769,7 @@
     			body: JSON.stringify({ value })
     		});
 
-    		addToast((await res.json()).message, "success");
+    		addToast((await res.json()).message, "info");
     	}
 
     	const writable_props = [];
@@ -3441,12 +3277,13 @@
     	return child_ctx;
     }
 
-    // (13:4) {#each Object.values($toasts) as {text,level,id}
+    // (26:4) {#each Object.values($toasts) as {text,level,id}
     function create_each_block(key_1, ctx) {
     	let div1;
     	let div0;
     	let t0_value = /*text*/ ctx[1] + "";
     	let t0;
+    	let div0_class_value;
     	let div0_id_value;
     	let div0_intro;
     	let div0_outro;
@@ -3461,17 +3298,11 @@
     			div0 = element("div");
     			t0 = text(t0_value);
     			t1 = space();
-    			attr_dev(div0, "class", "p-4 bg-gray-200 border-gray-500 border-l-8 rounded-l-md mb-4 shadow-md text-lg svelte-1afmur3");
+    			attr_dev(div0, "class", div0_class_value = "" + (null_to_empty("p-4 border-l-8 rounded-l-md shadow-md text-lg " + classes(/*level*/ ctx[2])) + " svelte-1afmur3"));
     			attr_dev(div0, "id", div0_id_value = /*id*/ ctx[3]);
-    			toggle_class(div0, "bg-red-300", /*level*/ ctx[2] === "danger");
-    			toggle_class(div0, "border-red-600", /*level*/ ctx[2] === "danger");
-    			toggle_class(div0, "bg-green-300", /*level*/ ctx[2] === "success");
-    			toggle_class(div0, "border-green-600", /*level*/ ctx[2] === "success");
-    			toggle_class(div0, "bg-blue-300", /*level*/ ctx[2] === "info");
-    			toggle_class(div0, "border-blue-600", /*level*/ ctx[2] === "info");
-    			add_location(div0, file$1, 14, 8, 353);
-    			attr_dev(div1, "class", "flex justify-end svelte-1afmur3");
-    			add_location(div1, file$1, 13, 4, 314);
+    			add_location(div0, file$1, 27, 8, 747);
+    			attr_dev(div1, "class", "flex justify-end mb-4 svelte-1afmur3");
+    			add_location(div1, file$1, 26, 4, 703);
     			this.first = div1;
     		},
     		m: function mount(target, anchor) {
@@ -3485,32 +3316,12 @@
     			ctx = new_ctx;
     			if ((!current || dirty & /*$toasts*/ 1) && t0_value !== (t0_value = /*text*/ ctx[1] + "")) set_data_dev(t0, t0_value);
 
+    			if (!current || dirty & /*$toasts*/ 1 && div0_class_value !== (div0_class_value = "" + (null_to_empty("p-4 border-l-8 rounded-l-md shadow-md text-lg " + classes(/*level*/ ctx[2])) + " svelte-1afmur3"))) {
+    				attr_dev(div0, "class", div0_class_value);
+    			}
+
     			if (!current || dirty & /*$toasts*/ 1 && div0_id_value !== (div0_id_value = /*id*/ ctx[3])) {
     				attr_dev(div0, "id", div0_id_value);
-    			}
-
-    			if (dirty & /*Object, $toasts*/ 1) {
-    				toggle_class(div0, "bg-red-300", /*level*/ ctx[2] === "danger");
-    			}
-
-    			if (dirty & /*Object, $toasts*/ 1) {
-    				toggle_class(div0, "border-red-600", /*level*/ ctx[2] === "danger");
-    			}
-
-    			if (dirty & /*Object, $toasts*/ 1) {
-    				toggle_class(div0, "bg-green-300", /*level*/ ctx[2] === "success");
-    			}
-
-    			if (dirty & /*Object, $toasts*/ 1) {
-    				toggle_class(div0, "border-green-600", /*level*/ ctx[2] === "success");
-    			}
-
-    			if (dirty & /*Object, $toasts*/ 1) {
-    				toggle_class(div0, "bg-blue-300", /*level*/ ctx[2] === "info");
-    			}
-
-    			if (dirty & /*Object, $toasts*/ 1) {
-    				toggle_class(div0, "border-blue-600", /*level*/ ctx[2] === "info");
     			}
     		},
     		i: function intro(local) {
@@ -3544,7 +3355,7 @@
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(13:4) {#each Object.values($toasts) as {text,level,id}",
+    		source: "(26:4) {#each Object.values($toasts) as {text,level,id}",
     		ctx
     	});
 
@@ -3576,7 +3387,7 @@
     			}
 
     			attr_dev(div, "class", "fixed z-20 max-w-threeQuarter sm:max-w-half top-6 right-0 trans1 svelte-1afmur3");
-    			add_location(div, file$1, 11, 0, 171);
+    			add_location(div, file$1, 24, 0, 560);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -3591,7 +3402,7 @@
     			current = true;
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*Object, $toasts*/ 1) {
+    			if (dirty & /*classes, Object, $toasts*/ 1) {
     				each_value = Object.values(/*$toasts*/ ctx[0]);
     				validate_each_argument(each_value);
     				group_outros();
@@ -3636,6 +3447,19 @@
     	return block;
     }
 
+    function classes(level) {
+    	switch (level) {
+    		case "danger":
+    			return "bg-red-300 border-red-600";
+    		case "success":
+    			return "bg-green-300 border-green-600";
+    		case "info":
+    			return "bg-blue-300 border-blue-600";
+    		default:
+    			return "bg-gray-200 border-gray-500";
+    	}
+    }
+
     function instance$1($$self, $$props, $$invalidate) {
     	let $toasts;
     	validate_store(toasts, "toasts");
@@ -3648,7 +3472,7 @@
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Toast> was created with unknown prop '${key}'`);
     	});
 
-    	$$self.$capture_state = () => ({ slide, fly, toasts, $toasts });
+    	$$self.$capture_state = () => ({ slide, fly, toasts, classes, $toasts });
     	return [$toasts];
     }
 
