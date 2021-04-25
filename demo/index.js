@@ -81,13 +81,35 @@ fastify.register(plugin, {
             name: "Shutdown server",
             params: [],
             func: params => {
+                process.exit(0);
                 return "Of course this does not work in demo ;)";
             }
         }
     ],
     panel: {
         title: "King Hannes",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Succs-icon.png"
+        logo: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Succs-icon.png",
+        metrics: [{
+            id: "rss",
+            name: "RSSbytes",
+            chart: {
+                steps: 20
+            },
+            type: ["min", "max", "avg"],
+            seconds: 40,
+            interval: 1000,
+            color: "lightgreen"
+        }, {
+            id: "freemem",
+            name: "Free memory",
+            chart: {
+                //minY: 0,
+                steps: 40
+            },
+            seconds: 5,
+            interval: 1000,
+            color: "purple"
+        }]
     },
     script: {
         params: {
@@ -123,9 +145,11 @@ return fibonacci(10)`
                 ]
             },
             save(k, v) {
-                //scriptStore[k] = v;
+                scriptStore[k] = v;
             },
-            delete(k) { }
+            delete(k) {
+                delete scriptStore[k];
+            }
         }
     },
     env: true,
@@ -156,7 +180,7 @@ return fibonacci(10)`
                 //schedule: "atra a",
             }
         ],
-        storePath: require("path").join(process.cwd(), "killing")
+        storePath: require("path").join("/tmp", "cron")
     },
     auth: false && {
         writeToken: "salmigkeit777"
@@ -167,7 +191,7 @@ fastify.get("*", (req, rep) => {
     rep.type("text/html").send(`<a href="/status/panel">Link to panel</a>`);
 });
 
-fastify.listen(3434, (e, a) => {
+fastify.listen(3434, "0.0.0.0", (e, a) => {
     e && (() => { throw e })();
     console.log(a);
 });

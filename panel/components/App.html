@@ -4,6 +4,7 @@
     import Toast from "./Toast.html";
     import { onMount } from "svelte";
     import { fetchConfig } from "../config";
+    import { darkMode } from "../utils";
 
     const KEY_SECTION = "section";
     const KEY_DARK = "dark";
@@ -11,7 +12,6 @@
     const sections = ["Application", "Action", "Configuration", "System", "Monitor"];
     const html = document.body.parentNode;
 
-    let darkMode = Boolean(localStorage.getItem(KEY_DARK));
     let wide = Boolean(localStorage.getItem(KEY_WIDE));
     let activeSection = (() => {
         let s = localStorage.getItem(KEY_SECTION);
@@ -20,12 +20,11 @@
         }
     })() || sections[0];
     let openAside = false;
+    $: activeSection, openAside = false;
 
     $: localStorage.setItem(KEY_SECTION, activeSection);
-    $: localStorage.setItem(KEY_DARK, darkMode ? 1 : "");
     $: localStorage.setItem(KEY_WIDE, wide ? 1 : "");
-    $: html.classList.toggle("dark", darkMode);
-
+    darkMode.subscribe(value => html.classList.toggle("dark", value));
 
     onMount(async () => {
         await fetchConfig();
@@ -47,7 +46,8 @@
         transform: rotate(45deg) translateY(25%);
     }
 
-    .top,.bottom {
+    .top,
+    .bottom {
         transform-origin: center;
     }
 
@@ -58,7 +58,6 @@
     .bottom.active {
         transform: rotate(-45deg) translateY(-25%);
     }
-
 </style>
 
 <!--back #171421-->
@@ -80,13 +79,15 @@
                 stroke-width="2" d="M4 18h16" />
         </svg>
     </div>
+    <div class="bg-overlay fixed w-screen h-screen inset-0 sm:hidden" class:block="{openAside}"
+        class:hidden="{!openAside}"></div>
     <div class="flex flex-col justify-between h-screen">
         <main class="sm:ml-64 lg:ml-72 p-3 trans1">
             <Content activeSection="{activeSection}" />
         </main>
         <footer class="sm:ml-64 lg:ml-72 p-3 trans1 bg-purple-500">
             <label class="checkbox">
-                <input type="checkbox" bind:checked="{darkMode}">
+                <input type="checkbox" bind:checked="{$darkMode}">
                 Dark
             </label>
             <label class="checkbox">
@@ -95,6 +96,4 @@
             </label>
         </footer>
     </div>
-    <div class="bg-overlay fixed w-screen h-screen inset-0 sm:hidden" class:block="{openAside}"
-        class:hidden="{!openAside}"></div>
 </div>

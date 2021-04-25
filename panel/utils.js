@@ -1,4 +1,10 @@
+import { writable } from "svelte/store";
 import { addToast } from "./toast"
+
+const KEY_DARK = "dark";
+
+const darkMode = writable(Boolean(localStorage.getItem(KEY_DARK)));
+darkMode.subscribe(value => localStorage.setItem(KEY_DARK, value ? 1 : ""));
 
 async function doFetch(path, options) {
     return fetch(path, options)
@@ -15,4 +21,4 @@ async function doFetch(path, options) {
         });
 }
 
-export { doFetch };
+export { doFetch, darkMode };

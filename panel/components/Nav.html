@@ -5,6 +5,28 @@
     export let activeSection;
 </script>
 
+<style>
+    @keyframes spin {
+
+        0%,
+        10%,
+        100% {
+            transform: rotate(0deg);
+        }
+
+        50%,
+        60% {
+            transform: rotate(360deg);
+        }
+    }
+
+    img {
+        transform-origin: center;
+        animation: spin 3.5s cubic-bezier(0.83, -0.3, 0.17, 1);
+        animation-iteration-count: infinite;
+    }
+</style>
+
 {#if $config.title}
 <h1 class="text-3xl mb-3 font-semibold">{$config.title}</h1>
 {/if}
@@ -14,8 +36,9 @@
 <nav>
     <ul>
         {#each sections as s (s)}
-        <li class="p-1 py-2 mb-1 rounded-lg cursor-pointer" on:click="{()=>activeSection=s}" class:bg-blue-400="{activeSection===s}"
-            class:hover:bg-darker="{activeSection!==s}" class:dark:hover:bg-lighter="{activeSection!==s}">
+        <li class="px-3 py-2 mb-1 rounded-md cursor-pointer" on:click="{()=>activeSection=s}"
+            class:bg-blue-400="{activeSection===s}" class:hover:bg-darker="{activeSection!==s}"
+            class:dark:hover:bg-lighter="{activeSection!==s}">
             {s}
         </li>
         {/each}
