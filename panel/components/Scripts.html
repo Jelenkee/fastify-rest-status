@@ -36,7 +36,7 @@
         }
         scriptExecuting = true;
         try {
-            scriptResult = await (await fetch(BASE_PATH + "/script/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript }) })).json();
+            scriptResult = await (await doFetch(BASE_PATH + "/script/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ script: currentScript }) })).json();
         } finally {
             scriptExecuting = false;
         }
@@ -72,10 +72,6 @@
 </script>
 
 <style>
-    .mono {
-        font-family: 'Ubuntu Mono', sans-serif;
-    }
-
     .ellipsis {
         white-space: nowrap;
         overflow-x: hidden;
@@ -86,13 +82,13 @@
 <h5 class="text-xl">Script</h5>
 <div class="flex">
     <div class="min-w-0 flex-auto pr-4">
-        <textarea wrap="off" rows="10" class="mono w-full font-mono" class:is-danger="{scriptError}"
+        <textarea wrap="off" rows="10" class="w-full font-mono" class:is-danger="{scriptError}"
             bind:value="{currentScript}" on:keyup="{e=>e.ctrlKey&&e.key==='Enter'&&runScript()}"
             on:input="{()=>scriptError=false}"></textarea>
         <input type="text" class="input" bind:value="{currentScriptName}" placeholder="Name"
             class:is-danger="{scriptNameError}" on:input="{()=>scriptNameError=false}" size="12">
         <button class="button" on:click="{saveScript}">Save</button>
-        <button class="button" on:click="{runScript}" class:is-loading="{scriptExecuting}">Run</button>
+        <button class="button" on:click="{runScript}">Run</button>
         {#if scriptResult}
         <div class="result">
             <code>R: {scriptResult.result}</code>
@@ -108,7 +104,7 @@
         <div class="p-1 hover:bg-darker dark:hover:bg-lighter cursor-pointer"
             on:click="{()=>{currentScript=script;currentScriptName=name}}">
             <p><b>{name}</b></p>
-            <p class="help mono font-mono ellipsis">{script}</p>
+            <p class="help font-mono ellipsis">{script}</p>
         </div>
         {/if}
         {/each}

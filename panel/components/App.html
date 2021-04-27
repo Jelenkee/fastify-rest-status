@@ -3,31 +3,33 @@
     import Content from "./Content.html";
     import Toast from "./Toast.html";
     import { onMount } from "svelte";
-    import { fetchConfig } from "../config";
+    import { fetchConfig, afterLoaded } from "../config";
     import { darkMode } from "../utils";
 
     const KEY_SECTION = "section";
     const KEY_DARK = "dark";
     const KEY_WIDE = "wide";
-    const sections = ["Application", "Action", "Configuration", "System", "Monitor"];
+    let sections = [];
     const html = document.body.parentNode;
 
     let wide = Boolean(localStorage.getItem(KEY_WIDE));
-    let activeSection = (() => {
-        let s = localStorage.getItem(KEY_SECTION);
-        if (s && sections.includes(s)) {
-            return s;
-        }
-    })() || sections[0];
+    let activeSection;
     let openAside = false;
+    let loaded = false;
     $: activeSection, openAside = false;
 
-    $: localStorage.setItem(KEY_SECTION, activeSection);
+    $: loaded && localStorage.setItem(KEY_SECTION, activeSection.id);
     $: localStorage.setItem(KEY_WIDE, wide ? 1 : "");
     darkMode.subscribe(value => html.classList.toggle("dark", value));
 
     onMount(async () => {
-        await fetchConfig();
+        afterLoaded(config => {
+            loaded = true;
+            sections = config.sections;
+            let id = localStorage.getItem(KEY_SECTION);
+            activeSection = (id && sections.filter(s => s.id === id)[0]) || sections[0];
+        });
+        fetchConfig();
     });
 
 </script>
@@ -63,6 +65,7 @@
 <!--back #171421-->
 <!--blue #12488b-->
 <Toast />
+{#if loaded}
 <div class="mx-auto text-gray-800 dark:text-blue-100 font-sans" class:max-w-screen-2xl="{!wide}">
     <aside class="h-screen fixed w-64 lg:w-72 z-10 p-3 bg-white dark:bg-gray-900 shadow-lg trans1 sm:ml-0"
         class:-ml-72="{!openAside}">
@@ -97,3 +100,4 @@
         </footer>
     </div>
 </div>
+{/if}

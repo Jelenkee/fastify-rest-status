@@ -1,6 +1,6 @@
 <script>
     import { onMount, onDestroy, tick } from "svelte";
-    import { config, afterLoaded } from "../config";
+    import { afterLoaded } from "../config";
     import { darkMode } from "../utils";
 
     const DEFAULT_SECONDS = 10;
@@ -68,7 +68,7 @@
             borderColor: color,
             backgroundColor: "transparent",
             pointRadius: 0,
-            tension: 0.3,
+            tension: 0.2,
         };
     }
 
@@ -126,8 +126,8 @@
 
     onMount(() => {
         const intervals = [];
-        afterLoaded(() => {
-            metrics = ($config.metrics || []).map(m => ({
+        afterLoaded(config => {
+            metrics = (config.metrics || []).filter($ => $ && $.id).map(m => ({
                 metric: m,
                 current: DEFAULT_VALUES,
                 showChart: !("chart" in m) || Boolean(m.chart)
@@ -135,11 +135,10 @@
             tick().then(() => {
                 for (const m of metrics) {
                     m.metric.seconds = typeof m.metric.seconds === "number" ? m.metric.seconds : DEFAULT_SECONDS;
-                    //m.showChart = !("chart" in m.metric) || m.metric.chart;
                     const timeout = m.metric.interval || DEFAULT_INTERVAL;
                     if (m.showChart) {
                         m.chart = createChart(m.metric);
-                        m.chart.config.options.animation.duration = timeout;
+                        m.chart.config.options.animation.duration = Math.min(1000, timeout);
                         changeChartColor(m.chart);
                     }
                     intervals.push(setInterval(() => fetchValues(m), timeout));
@@ -198,26 +197,13 @@
     }
 
     function formatNumber(num = 0) {
-        let suffix = "";
-        if (num >= 1000000000) {
-            num /= 1000000000;
-            suffix = "G"
-        } else if (num >= 1000000) {
-            num /= 1000000;
-            suffix = "M"
-        } else if (num >= 1000) {
-            num /= 1000;
-            suffix = "K"
-        }
+        const prefix = num < 0 ? "-" : "";
+        num = Math.abs(num);
+        const index = Math.floor(Math.log10(num) / 3) - 1;
+        const suffix = index < 0 ? "" : "KMGTPE"[index];
+        num /= Math.pow(10, (index + 1) * 3)
         num = Math.round(num * 100) / 100;
-        return num.toLocaleString(window.navigator.language || "en-US") + suffix;
-    }
-
-    function randomColors(num = 10) {
-        return new Array(num).fill(null)
-            .map(() => {
-                return "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, "0");
-            });
+        return prefix + num.toLocaleString(window.navigator.language || "en-US") + suffix;
     }
 </script>
 

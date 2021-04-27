@@ -97,7 +97,7 @@ fastify.register(plugin, {
             },
             type: ["min", "max", "avg"],
             seconds: 40,
-            interval: 1000,
+            interval: 5000,
             color: "lightgreen"
         }, {
             id: "freemem",
@@ -108,7 +108,7 @@ fastify.register(plugin, {
             },
             seconds: 5,
             interval: 1000,
-            color: "purple"
+            color: "plum"
         }]
     },
     script: {

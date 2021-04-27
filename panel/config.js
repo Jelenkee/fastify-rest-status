@@ -1,23 +1,25 @@
 import { writable } from "svelte/store";
 import { doFetch } from "./utils";
 
-const config = writable({});
+let config = {}
+const configStore = writable({});
+configStore.subscribe(value => config = value);
 let loaded = false;
 const loadingFunctions = [];
 
 async function fetchConfig() {
     const res = await (await doFetch(BASE_PATH + "/panel/config")).json();
-    config.set(res);
+    configStore.set(res);
     loaded = true;
-    loadingFunctions.forEach(func => func());
+    loadingFunctions.forEach(func => func(res));
 }
 
 function afterLoaded(func) {
     if (loaded) {
-        func();
+        func(config);
     } else {
         loadingFunctions.push(func);
     }
 }
 
-export { config, fetchConfig, afterLoaded };
+export { configStore as config, fetchConfig, afterLoaded };

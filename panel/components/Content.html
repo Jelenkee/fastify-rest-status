@@ -8,19 +8,21 @@
 </script>
 
 {#if activeSection}
-<h2 class="text-2xl pt-8 pb-4">{activeSection}</h2>
+{#if activeSection.id}
+<h2 class="text-2xl pt-8 pb-4">{activeSection.name}</h2>
 {/if}
 
-{#if activeSection === "Application"}
+{#if activeSection.id === "scripts"}
 <Scripts />
-{:else if activeSection === "Action"}
-<p>Marvel</p>
-{:else if activeSection === "Configuration"}
+{:else if activeSection.id === "cron"}
+<p>Cron</p>
+{:else if activeSection.id === "config"}
 <Config />
-{:else if activeSection === "System"}
+{:else if activeSection.id === "system"}
 <p>Processor</p>
-{:else if activeSection === "Monitor"}
+{:else if activeSection.id === "metrics"}
 <Monitor />
 {:else}
 <p>Unknown section</p>
+{/if}
 {/if}

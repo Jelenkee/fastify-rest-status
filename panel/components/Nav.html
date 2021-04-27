@@ -39,7 +39,7 @@
         <li class="px-3 py-2 mb-1 rounded-md cursor-pointer" on:click="{()=>activeSection=s}"
             class:bg-blue-400="{activeSection===s}" class:hover:bg-darker="{activeSection!==s}"
             class:dark:hover:bg-lighter="{activeSection!==s}">
-            {s}
+            {s.name}
         </li>
         {/each}
     </ul>

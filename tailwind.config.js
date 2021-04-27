@@ -27,7 +27,7 @@ module.exports = {
         threeQuarter: "75%",
       },
       fontFamily: {
-        mono: "Ubuntu Mono"
+        mono: "Ubuntu Mono, monospace"
       },
     },
   },

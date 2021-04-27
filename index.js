@@ -1,6 +1,6 @@
 const fp = require("fastify-plugin");
 
-const NAME = "fastify-rest-status";
+const NAME = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "package.json"))).name;
 
 function plugin(instance, opts, done) {
     opts = Object.assign({}, opts);
