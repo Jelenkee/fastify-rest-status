@@ -125,7 +125,7 @@
     };
 
     onMount(() => {
-        const intervals = [];
+        let socket;
         afterLoaded(config => {
             metrics = (config.metrics || []).filter($ => $ && $.id).map(m => ({
                 metric: m,
@@ -141,17 +141,27 @@
                         m.chart.config.options.animation.duration = Math.min(1000, timeout);
                         changeChartColor(m.chart);
                     }
-                    intervals.push(setInterval(() => fetchValues(m), timeout));
-                    fetchValues(m);
                 }
             });
+            try {
+                const loc = window.location;
+                const url = loc.protocol.replace("http", "ws") + "//" + loc.host + BASE_PATH + "/panel/socket";
+                socket = new WebSocket(url);
+                socket.onmessage = event => {
+                    const json = JSON.parse(event.data);
+                    const metric = metrics[json.index];
+                    metric && handleValues(metric, json.values);
+                };
+            } catch (error) {
+                console.error(error);
+            }
         });
-        return () => intervals.forEach(clearInterval);
+        return () => socket && socket.close();
     });
 
-    async function fetchValues(m) {
+    async function handleValues(m, values) {
         const { metric, chart } = m;
-        const values = m.current = (await fetchMetric(metric.id, metric.seconds)) || DEFAULT_VALUES;
+        m.current = values;
         metrics = metrics;
         if (!chart) {
             return;
@@ -184,16 +194,6 @@
         }
 
         chart.update();
-    }
-
-    async function fetchMetric(id, seconds) {
-        try {
-            const res = await fetch(BASE_PATH + "/monitor/" + id + "/" + seconds);
-            return res.ok ? res.json() : DEFAULT_VALUES;
-        } catch (error) {
-            console.error(error);
-            return DEFAULT_VALUES;
-        }
     }
 
     function formatNumber(num = 0) {
