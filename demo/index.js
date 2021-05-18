@@ -104,7 +104,7 @@ fastify.register(plugin, {
             name: "Free memory",
             chart: {
                 //minY: 0,
-                steps: 40
+                steps: 40,
             },
             seconds: 5,
             interval: 1000,

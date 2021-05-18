@@ -85,9 +85,10 @@ test("config", t => {
         fastify.register(plugin, {
             prefix,
             config: {
-                onChange: (key, value) => {
+                onChange: (key, value, oldValue) => {
                     changes.push(key);
                     changes.push(value);
+                    changes.push(oldValue);
                 },
                 defaultConfig: {
                     foo: { value: undefined },
@@ -101,7 +102,7 @@ test("config", t => {
             fastify.setConfigValue("bar", 99);
             fastify.setConfigValue("bar", "nice");
             fastify.setConfigValue("bar", "nice");
-            t.deepEqual(changes, ["foo", null, "bar", 99, "bar", "nice"]);
+            t.same(changes, ["foo", null, undefined, "bar", 99, undefined, "bar", "nice", 99]);
         });
     });
 
@@ -140,22 +141,22 @@ test("config", t => {
         let res = null;
 
         res = await fastify.inject().get(CONFIG_PATH).end();
-        t.deepEqual(JSON.parse(res.body), { bar: { value: "bar" }, foo: { value: 99 } });
+        t.same(JSON.parse(res.body), { bar: { value: "bar" }, foo: { value: 99 } });
 
         res = await fastify.inject().get(CONFIG_PATH + "/bar").end();
-        t.deepEqual(JSON.parse(res.body), { value: "bar" });
+        t.same(JSON.parse(res.body), { value: "bar" });
 
         res = await fastify.inject().put(CONFIG_PATH + "/bar").payload({ value: "barbar" }).end();
         res = await fastify.inject().get(CONFIG_PATH + "/bar").end();
-        t.deepEqual(JSON.parse(res.body), { value: "barbar" });
+        t.same(JSON.parse(res.body), { value: "barbar" });
 
         res = await fastify.inject().put(CONFIG_PATH + "/bar").payload({ value: "baz" }).end();
         res = await fastify.inject().get(CONFIG_PATH + "/bar").end();
-        t.deepEqual(JSON.parse(res.body), { value: "baz" });
+        t.same(JSON.parse(res.body), { value: "baz" });
 
         res = await fastify.inject().put(CONFIG_PATH + "/foo").payload({ value: "88" }).end();
         res = await fastify.inject().get(CONFIG_PATH).end();
-        t.deepEqual(JSON.parse(res.body), { bar: { value: "baz" }, foo: { value: "88" } });
+        t.same(JSON.parse(res.body), { bar: { value: "baz" }, foo: { value: "88" } });
     });
 });
 
@@ -172,7 +173,7 @@ test("actions", t => {
             ]
         });
         const res = await fastify.inject().get(ACTION_PATH + "/list").end();
-        t.deepEqual(JSON.parse(res.body), [
+        t.same(JSON.parse(res.body), [
             { id: "foo", name: "FOO", params: ["a", "b"] },
             { id: "bar", name: "bar", params: [] },
         ]);
@@ -209,11 +210,11 @@ test("actions", t => {
         });
         let res = null;
         res = await fastify.inject().post(ACTION_PATH + "/run/nothing").payload({ params: {} }).end();
-        t.deepEqual(JSON.parse(res.body), {});
+        t.same(JSON.parse(res.body), {});
         res = await fastify.inject().post(ACTION_PATH + "/run/something").payload({ params: {} }).end();
-        t.deepEqual(JSON.parse(res.body), {});
+        t.same(JSON.parse(res.body), {});
         res = await fastify.inject().post(ACTION_PATH + "/run/something").payload({ params: { a: "a", b: "99" } }).end();
-        t.deepEqual(JSON.parse(res.body), { a: "a", b: "99" });
+        t.same(JSON.parse(res.body), { a: "a", b: "99" });
         t.equal((await fastify.runAction("something", { foo: true })).foo, true);
     });
 });

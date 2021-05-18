@@ -18,7 +18,7 @@
 
     function createChart(metric) {
         const colorArray = getColorArray(metric.color || "orange");
-        return new Chart(document.querySelector("#metric_" + metric.id), {
+        const chart = new Chart(document.querySelector("#metric_" + metric.id), {
             type: "line",
             data: {
                 labels: [],
@@ -39,7 +39,7 @@
                         labels: {}
                     }
                 },
-                aspectRatio: 16 / 9,
+                aspectRatio: (metric.chart && metric.chart.aspectRatio) || 16 / 9,
                 scales: {
                     y: {
                         ticks: {
@@ -59,6 +59,7 @@
                 }
             }
         });
+        return chart;
     }
 
     function defaultDataset(label, color) {
@@ -197,6 +198,7 @@
     }
 
     function formatNumber(num = 0) {
+        if (num === 0) return "0";
         const prefix = num < 0 ? "-" : "";
         num = Math.abs(num);
         const index = Math.floor(Math.log10(num) / 3) - 1;
