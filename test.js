@@ -13,13 +13,13 @@ MONITOR_PATH = prefix + MONITOR_PATH;
 CRON_PATH = prefix + CRON_PATH;
 
 test("config", t => {
-    t.plan(6);
+    t.plan(5);
     t.test("defaultConfig", t => {
         t.plan(3);
         const fastify = Fastify();
         fastify.register(plugin, { prefix, config: { defaultConfig: { foo: { value: "foo" }, bar: { value: 99 } } } });
         fastify.get("/", (req, rep) => {
-            rep.send(req.getConfigValue("bar"));
+            rep.send(fastify.getConfigValue("bar"));
         });
         fastify.ready(async () => {
             t.equal(fastify.getConfigValue("foo"), "foo");
@@ -56,7 +56,7 @@ test("config", t => {
         });
     });
 
-    t.test("nullish", t => {
+    /*t.test("nullish", t => {
         t.plan(3);
         const fastify = Fastify();
         fastify.register(plugin, {
@@ -76,10 +76,10 @@ test("config", t => {
             t.equal(fastify.getConfigValue("foo"), null);
             t.equal(fastify.getConfigValue("bar"), undefined);
         });
-    });
+    });*/
 
     t.test("change event", t => {
-        t.plan(1);
+        t.plan(2);
         const fastify = Fastify();
         const changes = [];
         fastify.register(plugin, {
@@ -98,18 +98,19 @@ test("config", t => {
         });
 
         fastify.ready(() => {
-            fastify.setConfigValue("foo", null);
+            t.rejects(async () => fastify.setConfigValue("foo", null));
+            fastify.setConfigValue("foo", "");
             fastify.setConfigValue("bar", 99);
             fastify.setConfigValue("bar", "nice");
             fastify.setConfigValue("bar", "nice");
-            t.same(changes, ["foo", null, undefined, "bar", 99, undefined, "bar", "nice", 99]);
+            t.same(changes, ["foo", "", undefined, "bar", 99, undefined, "bar", "nice", 99]);
         });
     });
 
     t.test("safe & load", t => {
-        t.plan(4);
+        t.plan(3);
         const fastify = Fastify();
-        const store = { c: { foo: { value: 99 } } };
+        const store = { c: JSON.stringify({ foo: 99 }) };
         fastify.register(plugin, {
             prefix,
             config: {
@@ -124,7 +125,6 @@ test("config", t => {
             t.equal(fastify.getConfigValue("bar"), "bar");
             fastify.setConfigValue("foo", 88);
             t.equal(fastify.getConfigValue("foo"), 88);
-            t.equal(store.c.foo.value, 88);
         });
     });
 
@@ -556,11 +556,11 @@ test("cron", t => {
         res = await fastify.inject().get(CRON_PATH + "/job/placebo").end();
         const history = JSON.parse(res.body).history;
         t.equal(history.length, 3);
-        t.equal(history[0].result2, "1");
-        t.equal(history[0].result, "SUCCESS");
+        t.equal(history[0].result, "1");
+        t.equal(history[0].resultState, "SUCCESS");
         t.ok(history[0].duration >= 0);
-        t.equal(history[1].result2, "2");
-        t.equal(history[2].result, "ERROR");
+        t.equal(history[1].result, "2");
+        t.equal(history[2].resultState, "ERROR");
         t.equal(history[2].error.message, "E");
 
         res = await fastify.inject().post(CRON_PATH + "/disable/placebo").end();
