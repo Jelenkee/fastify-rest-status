@@ -15,15 +15,24 @@ CRON_PATH = prefix + CRON_PATH;
 test("config", t => {
     t.plan(5);
     t.test("defaultConfig", t => {
-        t.plan(3);
+        t.plan(6);
         const fastify = Fastify();
-        fastify.register(plugin, { prefix, config: { defaultConfig: { foo: { value: "foo" }, bar: { value: 99 } } } });
+        fastify.register(plugin, {
+            prefix,
+            config: {
+                store: createStore({ bak: "zoo", zoo: "bak" }),
+                defaultConfig: { foo: { value: "foo" }, bar: { value: 99 }, bak: { value: "ccc" } }
+            }
+        });
         fastify.get("/", (req, rep) => {
-            rep.send(fastify.getConfigValue("bar"));
+            return fastify.getConfigValue("bar");
         });
         fastify.ready(async () => {
-            t.equal(fastify.getConfigValue("foo"), "foo");
-            t.equal(fastify.getConfigValue("bar"), 99);
+            t.equal(await fastify.getConfigValue("foo"), "foo");
+            t.equal(await fastify.getConfigValue("bar"), "99");
+            t.equal(await fastify.getConfigValue("bak"), "zoo");
+            t.equal(await fastify.getConfigValue("zoo"), "bak");
+            t.equal(await fastify.getConfigValue("none"), undefined);
 
             const res = await fastify.inject().get("/").end();
             t.equal(res.body, "99");
@@ -37,46 +46,21 @@ test("config", t => {
             prefix,
             config: {
                 configTransformer: (key, value) => {
-                    if (key === "bar") {
-                        return parseInt(value);
-                    } else {
-                        return value;
-                    }
+                    return value.trim();
                 },
-                defaultConfig: { foo: { value: "" }, bar: { value: "" } }
+                defaultConfig: { foo: { value: "" }, bar: { value: "" } },
+                store: createStore(),
             }
         });
 
-        fastify.ready(() => {
-            fastify.setConfigValue("foo", "foo");
-            fastify.setConfigValue("bar", "99");
+        fastify.ready(async () => {
+            await fastify.setConfigValue("foo", "foo");
+            await fastify.setConfigValue("bar", "99  ");
 
-            t.equal(fastify.getConfigValue("foo"), "foo");
-            t.equal(fastify.getConfigValue("bar"), 99);
+            t.equal(await fastify.getConfigValue("foo"), "foo");
+            t.equal(await fastify.getConfigValue("bar"), "99");
         });
     });
-
-    /*t.test("nullish", t => {
-        t.plan(3);
-        const fastify = Fastify();
-        fastify.register(plugin, {
-            prefix, config: {
-                defaultConfig: {
-                    undef: { value: undefined },
-                    foo: { value: undefined },
-                    bar: { value: undefined },
-                }
-            }
-        });
-
-        fastify.ready(() => {
-            t.equal(fastify.getConfigValue("undef"), undefined);
-            fastify.setConfigValue("foo", null);
-            fastify.setConfigValue("bar", undefined);
-            t.equal(fastify.getConfigValue("foo"), null);
-            t.equal(fastify.getConfigValue("bar"), undefined);
-        });
-    });*/
 
     t.test("change event", t => {
         t.plan(2);
@@ -93,71 +77,92 @@ test("config", t => {
                 defaultConfig: {
                     foo: { value: undefined },
                     bar: { value: undefined },
-                }
+                },
+                store: createStore(),
             }
         });
 
-        fastify.ready(() => {
+        fastify.ready(async () => {
             t.rejects(async () => fastify.setConfigValue("foo", null));
-            fastify.setConfigValue("foo", "");
-            fastify.setConfigValue("bar", 99);
-            fastify.setConfigValue("bar", "nice");
-            fastify.setConfigValue("bar", "nice");
-            t.same(changes, ["foo", "", undefined, "bar", 99, undefined, "bar", "nice", 99]);
-        });
-    });
-
-    t.test("safe & load", t => {
-        t.plan(3);
-        const fastify = Fastify();
-        const store = { c: JSON.stringify({ foo: 99 }) };
-        fastify.register(plugin, {
-            prefix,
-            config: {
-                save: obj => store.c = obj,
-                load: () => store.c,
-                defaultConfig: { bar: { value: "bar" }, foo: { value: 88 } }
-            },
-        });
-
-        fastify.ready(() => {
-            t.equal(fastify.getConfigValue("foo"), 99);
-            t.equal(fastify.getConfigValue("bar"), "bar");
-            fastify.setConfigValue("foo", 88);
-            t.equal(fastify.getConfigValue("foo"), 88);
+            await fastify.setConfigValue("foo", "");
+            await fastify.setConfigValue("bar", 99);
+            await fastify.setConfigValue("bar", "nice");
+            await fastify.setConfigValue("bar", "nice");
+            t.strictSame(changes, ["foo", "", "undefined", "bar", "99", "undefined", "bar", "nice", "99"]);
         });
     });
 
     t.test("routes", async t => {
-        t.plan(5);
+        t.plan(7);
         const fastify = Fastify();
         fastify.register(plugin, {
             prefix,
             config: {
-                defaultConfig: { bar: { value: "bar" }, foo: { value: 99 } }
+                defaultConfig: { bar: { value: "bar" }, foo: { value: 99, description: "foofoo" } },
+                store: createStore(),
             },
         });
 
         let res = null;
 
         res = await fastify.inject().get(CONFIG_PATH).end();
-        t.same(JSON.parse(res.body), { bar: { value: "bar" }, foo: { value: 99 } });
+        t.strictSame(JSON.parse(res.body), { bar: { value: "bar" }, foo: { value: "99", description: "foofoo" } });
 
         res = await fastify.inject().get(CONFIG_PATH + "/bar").end();
-        t.same(JSON.parse(res.body), { value: "bar" });
+        t.strictSame(JSON.parse(res.body), { value: "bar" });
+
+        res = await fastify.inject().get(CONFIG_PATH + "/none").end();
+        t.strictSame(JSON.parse(res.body), {});
+
+        res = await fastify.inject().get(CONFIG_PATH + "/foo").end();
+        t.strictSame(JSON.parse(res.body), { value: "99", description: "foofoo" });
 
         res = await fastify.inject().put(CONFIG_PATH + "/bar").payload({ value: "barbar" }).end();
         res = await fastify.inject().get(CONFIG_PATH + "/bar").end();
-        t.same(JSON.parse(res.body), { value: "barbar" });
+        t.strictSame(JSON.parse(res.body), { value: "barbar" });
 
-        res = await fastify.inject().put(CONFIG_PATH + "/bar").payload({ value: "baz" }).end();
+        res = await fastify.inject().put(CONFIG_PATH + "/bar").payload({ value: "" }).end();
         res = await fastify.inject().get(CONFIG_PATH + "/bar").end();
-        t.same(JSON.parse(res.body), { value: "baz" });
+        t.strictSame(JSON.parse(res.body), { value: "" });
 
         res = await fastify.inject().put(CONFIG_PATH + "/foo").payload({ value: "88" }).end();
         res = await fastify.inject().get(CONFIG_PATH).end();
-        t.same(JSON.parse(res.body), { bar: { value: "baz" }, foo: { value: "88" } });
+        t.strictSame(JSON.parse(res.body), { bar: { value: "" }, foo: { value: "88", description: "foofoo" } });
     });
+
+    t.test("fallback", t => {
+        t.plan(5);
+        const fastify = Fastify();
+        fastify.register(plugin, {
+            prefix,
+            config: {
+                store: createStore(),
+            }
+        });
+
+        fastify.ready(async () => {
+            t.equal(await fastify.getConfigValue("tee"), undefined);
+            t.equal(await fastify.getConfigValue("tee", "bee"), "bee");
+            t.equal(await fastify.getConfigValue("tee"), undefined);
+            t.equal(await fastify.getConfigValue("tee", "bee", true), "bee");
+            t.equal(await fastify.getConfigValue("tee"), "bee");
+        });
+    });
+
+    function createStore(defaul) {
+        const s = Object.assign({}, defaul);
+        return {
+            get(key) {
+                return s[key];
+            },
+            set(key, val) {
+                s[key] = val;
+            },
+            entries() {
+                return Object.entries(s);
+            }
+        }
+    }
 });
 
 test("actions", t => {
@@ -173,7 +178,7 @@ test("actions", t => {
             ]
         });
         const res = await fastify.inject().get(ACTION_PATH + "/list").end();
-        t.same(JSON.parse(res.body), [
+        t.strictSame(JSON.parse(res.body), [
             { id: "foo", name: "FOO", params: ["a", "b"] },
             { id: "bar", name: "bar", params: [] },
         ]);
@@ -210,11 +215,11 @@ test("actions", t => {
         });
         let res = null;
         res = await fastify.inject().post(ACTION_PATH + "/run/nothing").payload({ params: {} }).end();
-        t.same(JSON.parse(res.body), {});
+        t.strictSame(JSON.parse(res.body), {});
         res = await fastify.inject().post(ACTION_PATH + "/run/something").payload({ params: {} }).end();
-        t.same(JSON.parse(res.body), {});
+        t.strictSame(JSON.parse(res.body), {});
         res = await fastify.inject().post(ACTION_PATH + "/run/something").payload({ params: { a: "a", b: "99" } }).end();
-        t.same(JSON.parse(res.body), { a: "a", b: "99" });
+        t.strictSame(JSON.parse(res.body), { a: "a", b: "99" });
         t.equal((await fastify.runAction("something", { foo: true })).foo, true);
     });
 });
@@ -423,7 +428,7 @@ test("cron", t => {
                 store: {
                     get(id) { return store[id]; },
                     set(id, job) { store[id] = job; },
-                    list() { return Object.values(store); },
+                    entries() { return Object.values(store); },
                 },
                 jobs: [
                     { id: "placebo", schedule: "* * * * * *", task: console.log }
@@ -458,7 +463,7 @@ test("cron", t => {
                 store: {
                     get(id) { return store[id]; },
                     set(id, job) { store[id] = job; },
-                    list() { return Object.values(store); },
+                    entries() { return Object.values(store); },
                 },
                 jobs: [
                     { id: "placebo", schedule: "* * * 31 2 *", task: () => count++ }
@@ -492,7 +497,7 @@ test("cron", t => {
                 store: {
                     get(id) { return store[id]; },
                     set(id, job) { store[id] = job; },
-                    list() { return Object.values(store); },
+                    entries() { return Object.values(store); },
                 },
                 jobs: [
                     { id: "placebo", schedule: "* * * 31 2 *", task: () => count++ }
@@ -525,7 +530,7 @@ test("cron", t => {
                 store: {
                     get(id) { return store[id]; },
                     set(id, job) { store[id] = job; },
-                    list() { return Object.values(store); },
+                    entries() { return Object.values(store); },
                 },
                 jobs: [
                     {
@@ -580,7 +585,7 @@ test("cron", t => {
                 store: {
                     get(id) { return store[id]; },
                     set(id, job) { store[id] = job; },
-                    list() { return Object.values(store); },
+                    entries() { return Object.entries(store); },
                 },
                 jobs: [
                     { id: PLACEBO, schedule: "* * * 31 2 *", task: () => count++ }

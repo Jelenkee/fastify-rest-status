@@ -22,7 +22,7 @@
     $: localStorage.setItem(KEY_WIDE, wide ? 1 : "");
     darkMode.subscribe(value => html.classList.toggle("dark", value));
 
-    onMount(async () => {
+    onMount(() => {
         afterLoaded(config => {
             loaded = true;
             sections = config.sections;

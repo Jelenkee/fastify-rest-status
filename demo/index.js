@@ -52,7 +52,8 @@ fastify.register(plugin, {
         },
         onChange: (k, v) => {
             configChanges++;
-        }
+        },
+        storePath: require("path").join("/tmp", "con")
     },
     actions: [
         {

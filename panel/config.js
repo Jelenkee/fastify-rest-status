@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 import { doFetch } from "./utils";
 
-let config = {}
+let config = {};
 const configStore = writable({});
 configStore.subscribe(value => config = value);
 let loaded = false;
