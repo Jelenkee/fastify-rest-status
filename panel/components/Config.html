@@ -6,6 +6,7 @@
 
     let configEntries = [];
     let configSearchterm = "";
+    let changed = new Map();
 
     onMount(() => {
         fetchConfig();
@@ -14,36 +15,65 @@
     async function fetchConfig() {
         const res = await doFetch(BASE_PATH + "/config");
         const config = await res.json();
-        configEntries = Object.entries(config).sort((a, b) => a[0].localeCompare(b[0])).map(e => { e[1].value = valueToString(e[1].value); return e; });
+        configEntries = Object.entries(config).sort((a, b) => a[0].localeCompare(b[0]));
+        changed.clear();
+        changed = changed;
     }
 
-    async function saveConfig(key, value) {
-        const res = await doFetch(BASE_PATH + "/config/" + key, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ value }) });
-        addToast((await res.json()).message, "info");
-    }
-
-    function valueToString(val) {
-        const type = typeof val;
-        if (Array.isArray(val)) {
-            return val.join(",");
-        } else if (typeof val === "object") {
-            return JSON.stringify(val);
+    async function saveConfig(key) {
+        if (typeof key === "string") {
+            if (changed.has(key)) {
+                const res = await doFetch(BASE_PATH + "/config/" + key, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ value: changed.get(key) }) });
+                addToast((await res.json()).message, "info");
+                changed.delete(key);
+                changed = changed;
+            }
         } else {
-            return String(val);
+            if (changed.size) {
+                await Promise.all(Array.from(changed.entries()).map(async ([key, value]) => {
+                    const res = await doFetch(BASE_PATH + "/config/" + key, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ value }) });
+                }));
+                addToast("Configuration saved", "info");
+                changed.clear();
+                changed = changed;
+                await fetchConfig();
+            }
         }
     }
+
 </script>
 
-<div><button class="button" on:click="{fetchConfig}">Refresh Config</button></div>
-<input type="text" class="" placeholder="Search" bind:value="{configSearchterm}">
-{#each configEntries as [k,v] (k)}
-{#if !configSearchterm || k.includes(configSearchterm)}
-<div class="">
-    <div> {k} </div>
+<style>
+    .grid1 {
+        display: grid;
+        grid-template-columns: max-content auto max-content;
+    }
+
+    .button:disabled {
+        opacity: 0.3;
+    }
+</style>
+
+<div class="flex justify-between mb-2">
+    <div>
+        <button class="button" on:click="{fetchConfig}" disabled="{!changed.size}">Refresh Config</button>
+        <button class="button" on:click="{saveConfig}" disabled="{!changed.size}">Save Config</button>
+    </div>
+    <input type="text" class="pl-3" placeholder="Search" bind:value="{configSearchterm}">
+</div>
+<div class="grid1 gap-y-3 gap-x-3 items-center">
+    {#each configEntries as [k,v] (k)}
+    {#if !configSearchterm || k.includes(configSearchterm)}
+    <div class=""> {k}
+        {#if v.description}
+        <span class="border border-black cursor-default" title="{v.description}">$</span>
+        {/if}
+    </div>
     <div class="">
         {#if v.values && v.values.length && v.values.length>1}
         <div class="">
-            <select bind:value="{v.value}">
+            <select class="w-full" bind:value="{v.value}"
+                on:input="{e=>{changed.set(k, e.target.value);changed=changed}}">
                 {#if !v.values.includes(v.value) }
                 <option selected>{v.value}</option>
                 {/if}
@@ -53,13 +83,13 @@
             </select>
         </div>
         {:else}
-        <input type="text" class="input" bind:value="{v.value}">
+        <input type="text" on:input="{e=>{changed.set(k, e.target.value);changed=changed}}" class="input w-full"
+            bind:value="{v.value}" autocomplete="off">
         {/if}
     </div>
-    {#if v.description}
-    <p class="">{v.description}</p>
+    <div>
+        <button class="button" on:click="{()=>saveConfig(k)}" disabled="{!changed.has(k)}">Save</button>
+    </div>
     {/if}
-    <button class="button" on:click="{()=>saveConfig(k,v.value)}">Save</button>
+    {/each}
 </div>
-{/if}
-{/each}

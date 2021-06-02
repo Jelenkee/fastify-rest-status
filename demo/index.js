@@ -7,45 +7,41 @@ let num = 0;
 let configChanges = 0;
 const scriptStore = {};
 //fastify.addHook("onRoute",console.log);
+fastify.addHook("onSend", (_, __, p, n) => {
+    setTimeout(() => {
+        n(null, p);
+    }, 500 - 500);
+});
 fastify.register(plugin, {
     prefix: "/status",
     logger: true,
     config: {
         defaultConfig: {
             number: {
-                value: 0,
+                value: "one",
                 description: "A number",
-                values: []
+                values: ["one", "two", "three"]
             },
             string: {
                 value: "qwerty",
                 description: "A sequence of characters",
                 values: ["qwerty", "asdf", "zxcvb"]
             },
-            array: {
-                value: ["malee"],
-                values: [["1", "2", "3"], ["a", "b", "c"]]
-            },
             json: {
-                value: {},
-                description: "An object",
+                value: "",
+                description: "empty",
             },
             loglevel: {
                 value: fastify.log.level,
                 values: Object.values(fastify.log.levels.labels)
+            },
+            free: {
+                value: "FREE",
             }
         },
         configTransformer: (k, v) => {
-            if (k === "number") {
-                const neu = parseInt(v);
-                if (Number.isNaN(neu)) {
-                    throw new Error(`${v} is not a number.`);
-                }
-                return neu;
-            } else if (k === "array") {
-                return v.split(",").map(s => s.trim());
-            } else if (k === "json") {
-                return JSON.parse(v);
+            if (k === "json") {
+                return v + v;
             } else {
                 return v;
             }
@@ -53,7 +49,7 @@ fastify.register(plugin, {
         onChange: (k, v) => {
             configChanges++;
         },
-        storePath: require("path").join("/tmp", "con")
+        storePath: require("path").join(require("os").tmpdir(), "con")
     },
     actions: [
         {
@@ -90,7 +86,7 @@ fastify.register(plugin, {
     panel: {
         title: "King Hannes",
         logo: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Succs-icon.png",
-        metrics: [{
+        metrics: [false && {
             id: "rss",
             name: "RSSbytes",
             chart: {

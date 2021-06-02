@@ -1,7 +1,7 @@
 <script>
     import { onMount, onDestroy, tick } from "svelte";
     import { afterLoaded } from "../config";
-    import { darkMode } from "../utils";
+    import { darkMode, getColorArray } from "../utils";
 
     const DEFAULT_SECONDS = 10;
     const DEFAULT_INTERVAL = 1000;
@@ -17,7 +17,7 @@
     $: $darkMode, metrics.forEach(m => m.chart && changeChartColor(m.chart));
 
     function createChart(metric) {
-        const colorArray = getColorArray(metric.color || "orange");
+        const colorArray = getColorArray(metric.color || "orange", [25, 45, 80]);
         const chart = new Chart(document.querySelector("#metric_" + metric.id), {
             type: "line",
             data: {
@@ -88,42 +88,6 @@
             $darkMode ? LIGHTER : DARKER;
         chart.update();
     }
-
-    function getColorArray(color) {
-        try {
-            document.head.style.backgroundColor = color;
-            let rgb = window.getComputedStyle(document.head).backgroundColor;
-            rgb = rgb.slice(rgb.indexOf("(") + 1, rgb.indexOf(")"));
-            rgb = rgb.split(",").map(s => Number(s.trim()));
-            if (rgb.length < 3) { throw new Error(); }
-            const hsl = RGBToHSL(rgb[0], rgb[1], rgb[2]);
-            return [`hsl(${hsl[0]},${hsl[1]}%,25%)`, `hsl(${hsl[0]},${hsl[1]}%,45%)`, `hsl(${hsl[0]},${hsl[1]}%,80%)`]
-        } catch (error) {
-            console.error(error);
-            return ["darkgray", "gray", "lightgray"];
-        }
-    }
-
-    // https://www.30secondsofcode.org/js/s/rgb-to-hsl
-    function RGBToHSL(r, g, b) {
-        r /= 255;
-        g /= 255;
-        b /= 255;
-        const l = Math.max(r, g, b);
-        const s = l - Math.min(r, g, b);
-        const h = s
-            ? l === r
-                ? (g - b) / s
-                : l === g
-                    ? 2 + (b - r) / s
-                    : 4 + (r - g) / s
-            : 0;
-        return [
-            60 * h < 0 ? 60 * h + 360 : 60 * h,
-            100 * (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0),
-            (100 * (2 * l - s)) / 2,
-        ];
-    };
 
     onMount(() => {
         let socket;

@@ -2,9 +2,9 @@
     import Nav from "./Nav.html";
     import Content from "./Content.html";
     import Toast from "./Toast.html";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import { fetchConfig, afterLoaded } from "../config";
-    import { darkMode } from "../utils";
+    import { darkMode, getColorArray } from "../utils";
 
     const KEY_SECTION = "section";
     const KEY_DARK = "dark";
@@ -20,7 +20,17 @@
 
     $: loaded && localStorage.setItem(KEY_SECTION, activeSection.id);
     $: localStorage.setItem(KEY_WIDE, wide ? 1 : "");
-    darkMode.subscribe(value => html.classList.toggle("dark", value));
+    darkMode.subscribe(value => {
+        html.classList.toggle("dark", value);
+        const numbers = Array.from(Array(21).keys()).map(e => e * 5);
+        value && numbers.reverse();
+        const prime = "rebeccapurple", second = "#80ff00";
+        const primeArray = getColorArray(prime, numbers), secArray = getColorArray(second, numbers);
+        for (let i = 0; i < primeArray.length; i++) {
+            html.style.setProperty(`--primeColor-${i}`, primeArray[i]);
+            html.style.setProperty(`--secondColor-${i}`, secArray[i]);
+        }
+    });
 
     onMount(() => {
         afterLoaded(config => {
