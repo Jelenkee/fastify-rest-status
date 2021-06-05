@@ -1,3 +1,5 @@
+const colors = require("tailwindcss/colors");
+
 module.exports = {
   mode: "jit",
   purge: {
@@ -18,8 +20,13 @@ module.exports = {
       },
       colors: {
         darker: "rgba(0, 0, 0, 0.1)",
+        darker2: "rgba(0, 0, 0, 0.7)",
         lighter: "rgba(255, 255, 255, 0.1)",
+        lighter2: "rgba(255, 255, 255, 0.7)",
         overlay: "rgba(0, 0, 0, 0.4)",
+        gray: colors.trueGray,
+        darkFont: "rgb(38, 38, 38)",
+        brightFont: "rgb(234, 234, 234)",
       },
       maxWidth: {
         oneQuarter: "25%",

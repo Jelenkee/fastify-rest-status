@@ -1,0 +1,38 @@
+<script>
+    import { tick } from "svelte";
+
+    export let text;
+
+    let visible = false;
+
+    let wrapper;
+    let tooltip;
+    let innerWidth;
+
+    function show() {
+        visible = true;
+        tick().then(() => {
+            const max = 300;
+            if (innerWidth < 400) {
+                tooltip.style.maxWidth = Math.min(max, (innerWidth - 20)) + "px";
+            } else {
+                tooltip.style.maxWidth = max + "px";
+            }
+            tooltip.style.transform = `translateX(calc(-50% + ${wrapper.getClientRects()[0].width / 2}px)) translateY(2em)`;
+            const left = tooltip.getClientRects()[0].left;
+            if (left < 0) {
+                tooltip.style.transform += `translateX(${-1 * left + 10}px)`;
+            }
+        });
+    }
+</script>
+
+<svelte:window bind:innerWidth />
+
+{#if visible}
+<span class="tooltip z-20 bg-darker2 text-brightFont text-sm absolute p-3 rounded-lg dark:border dark:border-brightFont"
+    bind:this={tooltip}>{text}</span>
+{/if}
+<span bind:this="{wrapper}" on:mouseenter="{show}" on:mouseleave="{()=>visible=false}">
+    <slot />
+</span>

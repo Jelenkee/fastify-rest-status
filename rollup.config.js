@@ -6,6 +6,7 @@ import postcss from "rollup-plugin-postcss";
 import { terser } from "rollup-plugin-terser";
 import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
+import nested from "postcss-nested";
 
 const dev = process.env.NODE_ENV !== "production"
 
@@ -32,7 +33,7 @@ export default [
             }),
             resolve({
                 browser: true,
-                dedupe: ["svelte"]
+                dedupe: s => s.startsWith("svelte")
             }),
             commonjs(),
             !dev && terser({
@@ -49,6 +50,7 @@ export default [
         plugins: [
             postcss({
                 plugins: [
+                    nested,
                     tailwindcss,
                     !dev && autoprefixer
                 ],

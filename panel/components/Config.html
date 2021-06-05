@@ -3,6 +3,8 @@
     import { slide } from "svelte/transition";
     import { doFetch } from "../utils.js";
     import { addToast } from "../toast.js";
+    import Tooltip from "./single/Tooltip.html";
+    import SVG from "./single/SVG.html";
 
     let configEntries = [];
     let configSearchterm = "";
@@ -46,27 +48,27 @@
 <style>
     .grid1 {
         display: grid;
-        grid-template-columns: max-content auto max-content;
-    }
-
-    .button:disabled {
-        opacity: 0.3;
+        grid-template-columns: minmax(100px, 1fr) 3.5fr max-content;
     }
 </style>
 
-<div class="flex justify-between mb-2">
+<div class="flex justify-between mb-2 items-center">
     <div>
-        <button class="button" on:click="{fetchConfig}" disabled="{!changed.size}">Refresh Config</button>
-        <button class="button" on:click="{saveConfig}" disabled="{!changed.size}">Save Config</button>
+        <button class="button prime" on:click="{fetchConfig}" disabled="{!changed.size}">Refresh config</button>
+        <button class="button prime outline" on:click="{saveConfig}" disabled="{!changed.size}">Save all</button>
     </div>
     <input type="text" class="pl-3" placeholder="Search" bind:value="{configSearchterm}">
 </div>
 <div class="grid1 gap-y-3 gap-x-3 items-center">
     {#each configEntries as [k,v] (k)}
     {#if !configSearchterm || k.includes(configSearchterm)}
-    <div class=""> {k}
+    <div class="overflow-x-auto"> {k}
         {#if v.description}
-        <span class="border border-black cursor-default" title="{v.description}">$</span>
+        <span class="cursor-default">
+            <Tooltip text="{v.description}">
+                <SVG type="question" classes="h-5 w-5 inline"></SVG>
+            </Tooltip>
+        </span>
         {/if}
     </div>
     <div class="">
@@ -88,7 +90,7 @@
         {/if}
     </div>
     <div>
-        <button class="button" on:click="{()=>saveConfig(k)}" disabled="{!changed.has(k)}">Save</button>
+        <button class="button small" on:click="{()=>saveConfig(k)}" disabled="{!changed.has(k)}">Save</button>
     </div>
     {/if}
     {/each}

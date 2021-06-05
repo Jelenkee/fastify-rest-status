@@ -8,5 +8,46 @@
 }
 
 .button {
-    @apply bg-white text-black cursor-pointer px-4 py-2 whitespace-nowrap border-gray-300 border rounded hover:bg-gray-100;
+    @apply bg-white text-darkFont cursor-pointer px-4 py-2 whitespace-nowrap border-gray-300 border rounded-md justify-center items-center text-center inline-flex text-sm relative;
+
+    &:not(:disabled) {
+        @apply hover:border-gray-400;
+    }
+
+    &.small {
+        @apply text-xs rounded px-2 py-1;
+    }
+
+    &:disabled {
+        @apply opacity-50 cursor-not-allowed;
+    }
+
+    &.prime{
+        @apply border-transparent hover:border-transparent;
+        background-color: var(--primeColor-9);
+
+        &:not(:disabled):hover{
+            background-color: var(--primeColor-8);
+        }
+
+        &.light{
+            background-color: var(--primeColor-16);
+            color: var(--primeColor-5);
+
+            &:not(:disabled):hover{
+                background-color: var(--primeColor-15);
+            }
+        }
+
+        &.outline{
+            @apply bg-transparent;
+            border-color: var(--primeColor-9);
+            color: var(--primeColor-9);
+
+            &:not(:disabled):hover{
+                background-color: var(--primeColor-9);
+                color: var(--primeColor-19);
+            }
+        }
+    }
 }

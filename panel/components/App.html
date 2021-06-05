@@ -24,7 +24,7 @@
         html.classList.toggle("dark", value);
         const numbers = Array.from(Array(21).keys()).map(e => e * 5);
         value && numbers.reverse();
-        const prime = "rebeccapurple", second = "#80ff00";
+        const prime = "#00ff80", second = "#805f50";
         const primeArray = getColorArray(prime, numbers), secArray = getColorArray(second, numbers);
         for (let i = 0; i < primeArray.length; i++) {
             html.style.setProperty(`--primeColor-${i}`, primeArray[i]);
@@ -70,18 +70,24 @@
     .bottom.active {
         transform: rotate(-45deg) translateY(-25%);
     }
+
+    .overlay{
+        z-index: 1;
+    }
 </style>
 
 <!--back #171421-->
 <!--blue #12488b-->
 <Toast />
 {#if loaded}
-<div class="mx-auto text-gray-800 dark:text-blue-100 font-sans" class:max-w-screen-2xl="{!wide}">
+<div class="mx-auto text-darkFont dark:text-brightFont font-sans" class:max-w-screen-2xl="{!wide}">
     <aside class="h-screen fixed w-64 lg:w-72 z-10 p-3 bg-white dark:bg-gray-900 shadow-lg trans1 sm:ml-0"
         class:-ml-72="{!openAside}">
         <Nav bind:activeSection="{activeSection}" sections="{sections}" />
     </aside>
-    <div class="fixed text-gray-800 bg-white rounded-full p-2 shadow-md bottom-0 right-0 z-10 mr-10 mb-10 cursor-pointer sm:hidden"
+
+    <!-- burger -->
+    <div class="fixed text-darkFont dark:text-brightFont bg-white dark:bg-gray-900 rounded-full p-2 shadow-md bottom-0 right-0 z-10 mr-10 mb-10 cursor-pointer sm:hidden"
         on:click="{()=>openAside^=true}">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path class="top trans1" class:active="{openAside}" stroke-linecap="round" stroke-linejoin="round"
@@ -92,8 +98,11 @@
                 stroke-width="2" d="M4 18h16" />
         </svg>
     </div>
-    <div class="bg-overlay fixed w-screen h-screen inset-0 sm:hidden" class:block="{openAside}"
+
+    <!-- overlay -->
+    <div class="overlay bg-overlay fixed w-screen h-screen inset-0 sm:hidden" class:block="{openAside}"
         class:hidden="{!openAside}"></div>
+
     <div class="flex flex-col justify-between h-screen">
         <main class="sm:ml-64 lg:ml-72 py-4 px-8 trans1">
             <Content activeSection="{activeSection}" />
